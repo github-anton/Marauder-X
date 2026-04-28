@@ -3,12 +3,12 @@
 
 ## 1. Setup compilded firmware with [esptool]
 
-1.1 Download esp32_C5-DevKit-marauder.merged.bin.
-1.2 Erase target device.
+# 1.1 Download esp32_C5-DevKit-marauder.merged.bin.
+# 1.2 Erase target device.
 
     esptool --chip esp32c5 --port /dev/ttyUSB0 erase_flash
 
-1.3 Flash firmware
+# 1.3 Flash firmware
 
     esptool --port /dev/ttyACM0 write_flash 0x0 esp32_C5-DevKit-marauder.merged.bin
 
