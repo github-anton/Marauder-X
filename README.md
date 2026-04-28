@@ -6,10 +6,11 @@ This project is a fork of the original ESP32Marauder, ported to Arduino Core v3 
 
 Main improvements:
 
-    Dual-Band Support (2.4/5 GHz): First implemented on the ESP32-C5. Attacks and monitoring are now available in both bands. Arduino Core v3: All code has been adapted to the latest SDK version, ensuring stable operation with new chips.
-    ESP32-C5 Ready: Supports Wi-Fi 6 (802.11ax) and modern security protocols.
-    DevKit Optimized: Predefined pin configurations for popular development boards.
-
+Dual-Band Support (2.4/5 GHz): First implemented on the ESP32-C5.
+Attacks and monitoring are now available in both bands.
+Arduino Core v3: All code has been adapted to the latest SDK version, ensuring stable operation with new chips.
+ESP32-C5 Ready: Supports Wi-Fi 6 (802.11ax) and modern security protocols.
+DevKit Optimized: Predefined pin configurations for popular development boards.
 
 ## Supported hardware
 
