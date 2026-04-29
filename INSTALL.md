@@ -12,6 +12,10 @@
 
     esptool --port /dev/ttyACM0 write_flash 0x0 esp32_C5-DevKit-marauder.merged.bin
 
+    or
+
+    esptool --port /dev/ttyACM0 write_flash 0x0 esp32_C6-DevKit-marauder.merged.bin
+
 
 ## 2. Compile firmware from sources and upload it to device.
 
@@ -62,13 +66,18 @@ You should see:
 
 
 ### 2.4. Select required settings.
+
     Tools:
         Board Selection: ESP32C5 Dev Module.
+        or
+        Board Selection: ESP32C6 Dev Module.
+
         Partition Scheme: Use Huge APP (3MB No OTA).
         USB CDC On Boot: enabled
         Flash Mode: DIO
-        CPU Frequency: 80 MHz (WiFi)
+        CPU Frequency: 120 MHz (WiFi)
         Port: /dev/ttyACMx or /dev/ttyUSBx depend on which port you connected the board.
+
 
 ### 2.5 Compile & upload firmware on the board (ESP32-C5-DevKit1)
     Select Tools/Upload.
