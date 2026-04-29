@@ -3,9 +3,17 @@
 #
 # Written by Google Ai & Anton Ermakov, 2026
 #
+import os
 
 # Replace this paths by your own.
-file_path = "/home/anton/Arduino/hardware/espressif/arduino-esp32/tools/esp32-arduino-libs/esp32c5/lib/libnet80211.a"
+core_path = "/home/anton/Arduino/hardware/espressif/arduino-esp32/"
+
+chips = {
+        "esp32c5",
+        "esp32c6"
+        }
+
+"tools/esp32-arduino-libs/esp32c5/lib/libnet80211.a"
 
 # Find the beginning of the function
 # riscv32-esp-elf-objdump -d libnet80211.a | grep -A 15 "<ieee80211_raw_frame_sanity_check>"
@@ -20,16 +28,18 @@ target = b"\x79\x71\x06\xd6\x22\xd4\x26\xd2\x4a\xd0\x4e\xce\x52\xcc\x56\xca\x5a\
 # So, we return 0x0 here.
 replacement = b"\x01\x45\x82\x80\x01\x00\x01\x00\x01\x00\x01\x00\x01\x00\x01\x00\x01\x00\x01\x00"
 
-with open(file_path, "rb") as f:
-    data = f.read()
+for c in chips:
+    file_path = os.path.join(core_path, "tools/esp32-arduino-libs", c, "lib/libnet80211.a")
+    with open(file_path, "rb") as f:
+        data = f.read()
 
-count = data.count(target)
-if(count != 1):
-    print(f"Found {count} signatures. Patch is not applied!")
-    exit()
+    count = data.count(target)
+    if(count != 1):
+        print(f"{c}: Found {count} signatures. Patch is not applied!")
+        exit()
 
-if target in data:
-    new_data = data.replace(target, replacement + target[len(replacement):], 1)
-    with open(file_path, "wb") as f:
-        f.write(new_data)
-    print("Patch successully applied!")
+    if target in data:
+        new_data = data.replace(target, replacement + target[len(replacement):], 1)
+        with open(file_path, "wb") as f:
+            f.write(new_data)
+            print(f"{c}: Patch successully applied!")
