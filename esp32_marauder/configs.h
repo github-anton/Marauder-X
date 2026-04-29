@@ -29,7 +29,8 @@
   //#define MARAUDER_CYD_2USB // Another 2432S028 but it has tWo UsBs OoOoOoO
   //#define MARAUDER_CYD_GUITION // ESP32-2432S024 GUITION
   //#define MARAUDER_CYD_3_5_INCH
-  #define MARAUDER_C5
+  //#define MARAUDER_C5
+  #define MARAUDER_C6
   //#define MARAUDER_CARDPUTER
   //#define MARAUDER_V8
   //#define MARAUDER_MINI_V3
@@ -38,7 +39,7 @@
 
   #define JSON_SETTING_SIZE 2048
 
-  #define MARAUDER_VERSION "v1.11.1"
+  #define MARAUDER_VERSION "v1.11.2"
 
   #define GRAPH_REFRESH   100
 
@@ -97,6 +98,8 @@
     #define HARDWARE_NAME "XIAO ESP32 S3"
   #elif defined(MARAUDER_C5)
     #define HARDWARE_NAME "ESP32-C5 DevKit"
+  #elif defined(MARAUDER_C6)
+    #define HARDWARE_NAME "ESP32-C6 DevKit"
   #elif defined(MARAUDER_V8)
     #define HARDWARE_NAME "Marauder v8"
   #elif defined(MARAUDER_MINI_V3)
@@ -455,6 +458,26 @@
   #endif
 
   #ifdef MARAUDER_C5
+    //#define HAS_FLIPPER_LED
+    //#define FLIPPER_ZERO_HAT
+    //#define HAS_BATTERY
+    #define HAS_BT
+    //#define HAS_BUTTONS
+    #define HAS_NEOPIXEL_LED
+    //#define HAS_PWR_MGMT
+    //#define HAS_SCREEN
+    //#define HAS_GPS
+    //#define HAS_C5_SD
+    //#define HAS_SD
+    //#define USE_SD
+    #define HAS_DUAL_BAND
+    //#define HAS_PSRAM
+    //#define HAS_TEMP_SENSOR
+    #define HAS_NIMBLE_2
+    #define HAS_IDF_3
+  #endif
+
+  #ifdef MARAUDER_C6
     //#define HAS_FLIPPER_LED
     //#define FLIPPER_ZERO_HAT
     //#define HAS_BATTERY
@@ -2460,6 +2483,8 @@
   #elif defined(XIAO_ESP32_S3)
     #define MEM_LOWER_LIM 10000
   #elif defined(MARAUDER_C5)
+    #define MEM_LOWER_LIM 10000
+   #elif defined(MARAUDER_C6)
     #define MEM_LOWER_LIM 10000
   #elif defined(MARAUDER_V8)
     #define MEM_LOWER_LIM 10000
