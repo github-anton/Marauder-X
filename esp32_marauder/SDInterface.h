@@ -23,8 +23,8 @@
 #include "esp_partition.h"
 #include "esp_err.h"
 
-extern Buffer buffer_obj;
-extern Settings settings_obj;
+extern Buffer *buffer_obj;
+extern Settings *settings_obj;
 #ifdef HAS_SCREEN
   extern Display display_obj;
 #endif

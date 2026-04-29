@@ -376,7 +376,7 @@ void EvilPortal::main(uint8_t scan_mode) {
              this->password.c_str());
 
     Serial.print(line);
-    buffer_obj.append(line);
+    buffer_obj->append(line);
     #ifdef HAS_SCREEN
         this->sendToDisplay(line);
     #endif

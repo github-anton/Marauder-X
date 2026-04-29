@@ -3,7 +3,7 @@
 void xiaoLED::RunSetup() {
     pinMode(XIAO_LED_PIN, OUTPUT);
 
-if (!settings_obj.loadSetting<bool>("EnableLED")) {
+if (!settings_obj->loadSetting<bool>("EnableLED")) {
     digitalWrite(XIAO_LED_PIN, HIGH);
     return;
 }
@@ -24,7 +24,7 @@ delay(50);
 }
 
 void xiaoLED::attackLED() {
-  if (!settings_obj.loadSetting<bool>("EnableLED"))
+  if (!settings_obj->loadSetting<bool>("EnableLED"))
     return;
     
   digitalWrite(XIAO_LED_PIN, HIGH);
@@ -33,7 +33,7 @@ void xiaoLED::attackLED() {
 }
 
 void xiaoLED::sniffLED() {
-  if (!settings_obj.loadSetting<bool>("EnableLED"))
+  if (!settings_obj->loadSetting<bool>("EnableLED"))
     return;
     
   digitalWrite(XIAO_LED_PIN, HIGH);
@@ -42,7 +42,7 @@ void xiaoLED::sniffLED() {
 }
 
 void xiaoLED::offLED() {
-  if (!settings_obj.loadSetting<bool>("EnableLED"))
+  if (!settings_obj->loadSetting<bool>("EnableLED"))
     return;
     
   digitalWrite(XIAO_LED_PIN, HIGH);

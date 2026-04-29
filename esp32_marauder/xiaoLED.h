@@ -10,7 +10,7 @@
 
 #define XIAO_LED_PIN 21
 
-extern Settings settings_obj;
+extern Settings *settings_obj;
 
 class xiaoLED {
 

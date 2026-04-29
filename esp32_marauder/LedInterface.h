@@ -12,10 +12,10 @@
 
 #define Pixels 1
 
-extern Settings settings_obj;
+extern Settings *settings_obj;
 
 #ifdef HAS_NEOPIXEL_LED
-  extern Adafruit_NeoPixel strip;
+  extern Adafruit_NeoPixel *strip;
 #endif
 
 class LedInterface {
@@ -46,7 +46,6 @@ class LedInterface {
     void setColor(int r, int g, int b);
     uint8_t getMode();
     
-  
 };
 
 #endif

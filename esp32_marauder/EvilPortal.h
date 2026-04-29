@@ -18,12 +18,12 @@
 #include "Buffer.h"
 #include "lang_var.h"
 
-extern Settings settings_obj;
+extern Settings *settings_obj;
 extern SDInterface sd_obj;
 #ifdef HAS_SCREEN
   extern Display display_obj;
 #endif
-extern Buffer buffer_obj; 
+extern Buffer *buffer_obj; 
 
 #define WAITING 0
 #define GOOD 1
