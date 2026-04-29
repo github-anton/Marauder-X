@@ -8,7 +8,7 @@
 
 #include <Arduino.h>
 
-extern Settings settings_obj;
+extern Settings *settings_obj;
 
 class flipperLED {
 

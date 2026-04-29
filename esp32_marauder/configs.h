@@ -490,7 +490,7 @@
     //#define HAS_C5_SD
     //#define HAS_SD
     //#define USE_SD
-    #define HAS_DUAL_BAND
+    //#define HAS_DUAL_BAND
     //#define HAS_PSRAM
     //#define HAS_TEMP_SENSOR
     #define HAS_NIMBLE_2
@@ -2510,6 +2510,8 @@
       #define PIN 22
     #elif defined(MARAUDER_C5)
       #define PIN 27
+    #elif defined(MARAUDER_C6)
+      #define PIN 8
     #elif defined(MARAUDER_V8)
       #define PIN 27
     #else

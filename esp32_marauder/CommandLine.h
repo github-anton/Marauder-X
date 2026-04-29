@@ -25,14 +25,14 @@
   extern Display display_obj;
 #endif
 
-extern WiFiScan wifi_scan_obj;
+extern WiFiScan *wifi_scan_obj;
 //extern Web web_obj;
 #ifdef HAS_SD
   extern SDInterface sd_obj;
 #endif
-extern Settings settings_obj;
+extern Settings *settings_obj;
 #if defined(HAS_NEOPIXEL_LED)
-  extern LedInterface led_obj;
+  extern LedInterface *led_obj;
 #endif
 extern LinkedList<AccessPoint>* access_points;
 extern LinkedList<AirTag>* airtags;

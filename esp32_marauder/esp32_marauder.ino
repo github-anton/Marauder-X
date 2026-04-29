@@ -69,11 +69,11 @@ https://www.online-utility.org/image/convert/to/XBM
 
 #endif
 
-WiFiScan wifi_scan_obj;
-EvilPortal evil_portal_obj;
-Buffer buffer_obj;
-Settings settings_obj;
-CommandLine cli_obj;
+WiFiScan *wifi_scan_obj = NULL ;
+EvilPortal *evil_portal_obj = NULL;
+Buffer *buffer_obj = NULL;
+Settings *settings_obj = NULL;
+CommandLine *cli_obj = NULL;
 
 #ifdef HAS_GPS
   GpsInterface gps_obj;
@@ -103,13 +103,13 @@ CommandLine cli_obj;
 #elif defined(MARAUDER_M5STICKC) || defined(MARAUDER_M5STICKCP2)
   stickcLED stickc_led;
 #elif defined(HAS_NEOPIXEL_LED)
-  LedInterface led_obj;
+  LedInterface *led_obj = NULL;
 #endif
 
 const String PROGMEM version_number = MARAUDER_VERSION;
 
 #ifdef HAS_NEOPIXEL_LED
-  Adafruit_NeoPixel strip = Adafruit_NeoPixel(Pixels, PIN, NEO_GRB + NEO_KHZ800);
+  Adafruit_NeoPixel *strip = NULL ;
 #endif
 
 uint32_t currentTime  = 0;
@@ -234,6 +234,22 @@ uint32_t currentTime  = 0;
 
 void setup()
 {
+  // Allocate memory for necessry objects and
+  // Initialize them.
+  // This is more convinient for debugging than
+  // static initialization. I initialization fails, I
+  // will see exact line.
+  wifi_scan_obj = new WiFiScan ;
+  evil_portal_obj = new EvilPortal ;
+  buffer_obj = new Buffer ;
+  settings_obj = new Settings ;
+  cli_obj = new CommandLine ;
+
+  #ifdef HAS_NEOPIXEL_LED
+  strip = new Adafruit_NeoPixel(Pixels, PIN, NEO_GRB + NEO_KHZ800);
+  led_obj = new LedInterface ;
+  #endif
+
   randomSeed(esp_random());
   
   #ifndef DEVELOPER
@@ -287,11 +303,6 @@ void setup()
 
     delay(10);
   #endif
-
-  //Serial.begin(115200);
-
-  //while(!Serial)
-  //  delay(10);
 
   Serial.println("ESP-IDF version is: " + String(esp_get_idf_version()));
 
@@ -347,14 +358,15 @@ void setup()
     #endif
   #endif
 
-  settings_obj.begin();
+  settings_obj->begin();
 
-  if (settings_obj.getSettingType("ChanHop") == "") {
+  if (settings_obj->getSettingType("ChanHop") == "") {
     Serial.println(F("Current settings format not supported. Installing new default settings..."));
-    settings_obj.createDefaultSettings(SPIFFS);
+    settings_obj->createDefaultSettings(SPIFFS);
   }
 
-  buffer_obj = Buffer();
+  // FIXME: I have already Initialized buffer_obj
+  // buffer_obj = Buffer();
 
   #ifndef HAS_SIMPLEX_DISPLAY
     #if defined(HAS_SD)
@@ -365,14 +377,14 @@ void setup()
     #endif
   #endif
 
-  wifi_scan_obj.RunSetup();
+  wifi_scan_obj->RunSetup();
 
   #ifdef HAS_SCREEN
     display_obj.tft.setTextColor(TFT_GREEN, TFT_BLACK);
     display_obj.tft.drawCentreString("Initializing...", TFT_WIDTH/2, TFT_HEIGHT * 0.82, 1);
   #endif
 
-  evil_portal_obj.setup();
+  evil_portal_obj->setup();
 
   #ifdef HAS_BATTERY
     battery_obj.RunSetup();
@@ -390,7 +402,7 @@ void setup()
   #elif defined(MARAUDER_M5STICKC)
     stickc_led.RunSetup();
   #elif defined(HAS_NEOPIXEL_LED)
-    led_obj.RunSetup();
+    led_obj->RunSetup();
   #endif
 
   #ifdef HAS_GPS
@@ -415,9 +427,9 @@ void setup()
 
   menu_function_obj.changeMenu(menu_function_obj.current_menu);*/
 
-  wifi_scan_obj.StartScan(WIFI_SCAN_OFF);
+  wifi_scan_obj->StartScan(WIFI_SCAN_OFF);
   
-  cli_obj.RunSetup();
+  cli_obj->RunSetup();
 }
 
 
@@ -449,20 +461,20 @@ void loop()
   #endif
 
   // Update all of our objects
-  cli_obj.main(currentTime);
-  wifi_scan_obj.main(currentTime);
+  cli_obj->main(currentTime);
+  wifi_scan_obj->main(currentTime);
 
   #ifdef HAS_GPS
     gps_obj.main();
   #endif
 
   // Save buffer to SD and/or serial
-  buffer_obj.save();
+  buffer_obj->save();
 
   #ifdef HAS_BATTERY
     battery_obj.main(currentTime);
   #endif
-  if ((wifi_scan_obj.currentScanMode != WIFI_PACKET_MONITOR) ||
+  if ((wifi_scan_obj->currentScanMode != WIFI_PACKET_MONITOR) ||
       (mini)) {
     #ifdef HAS_SCREEN
       menu_function_obj.main(currentTime);
@@ -475,7 +487,7 @@ void loop()
   #elif defined(MARAUDER_M5STICKC)
     stickc_led.main();
   #elif defined(HAS_NEOPIXEL_LED)
-    led_obj.main(currentTime);
+    led_obj->main(currentTime);
   #endif
 
   #ifdef HAS_SCREEN

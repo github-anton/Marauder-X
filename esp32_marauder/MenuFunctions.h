@@ -41,10 +41,10 @@
   #endif
 #endif
 
-extern WiFiScan wifi_scan_obj;
+extern WiFiScan *wifi_scan_obj;
 extern SDInterface sd_obj;
 extern BatteryInterface battery_obj;
-extern Settings settings_obj;
+extern Settings *settings_obj;
 
 #define FLASH_BUTTON 0
 

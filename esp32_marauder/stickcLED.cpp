@@ -16,7 +16,7 @@
 void stickcLED::RunSetup() {
     pinMode(STICKC_LED_PIN, OUTPUT);
 
-if (!settings_obj.loadSetting<bool>("EnableLED")) {
+if (!settings_obj->loadSetting<bool>("EnableLED")) {
     digitalWrite(STICKC_LED_PIN, M5LED_OFF);
     return;
 }
@@ -37,7 +37,7 @@ delay(50);
 }
 
 void stickcLED::attackLED() {
-  if (!settings_obj.loadSetting<bool>("EnableLED"))
+  if (!settings_obj->loadSetting<bool>("EnableLED"))
     return;
     
   digitalWrite(STICKC_LED_PIN, M5LED_ON);
@@ -46,7 +46,7 @@ void stickcLED::attackLED() {
 }
 
 void stickcLED::sniffLED() {
-  if (!settings_obj.loadSetting<bool>("EnableLED"))
+  if (!settings_obj->loadSetting<bool>("EnableLED"))
     return;
     
   digitalWrite(STICKC_LED_PIN, M5LED_ON);
@@ -55,7 +55,7 @@ void stickcLED::sniffLED() {
 }
 
 void stickcLED::offLED() {
-  if (!settings_obj.loadSetting<bool>("EnableLED"))
+  if (!settings_obj->loadSetting<bool>("EnableLED"))
     return;
   
   digitalWrite(STICKC_LED_PIN, M5LED_OFF);
