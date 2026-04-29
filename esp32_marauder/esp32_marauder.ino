@@ -493,6 +493,6 @@ void loop()
   #ifdef HAS_SCREEN
     delay(1);
   #else
-    delay(50);
+    delay(10);
   #endif
 }
