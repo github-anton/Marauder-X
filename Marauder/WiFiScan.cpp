@@ -8067,11 +8067,14 @@ void WiFiScan::sendProbeAttack(uint32_t currentTime) {
   }
 }
 
-void WiFiScan::sendDeauthFrame(uint8_t bssid[6], int channel, uint8_t mac[6]) {
-  WiFiScan::set_channel = channel;
-  this->changeChannel(channel);
-  delay(1);
-  
+void WiFiScan::sendDeauthFrame(uint8_t bssid[6], int channel, uint8_t mac[6])
+{
+  if (this->getChannel() != channel)
+  {  
+    this->changeChannel(channel);
+    delay(1);
+  }
+
   // Build AP source packet
   deauth_frame_default[4] = mac[0];
   deauth_frame_default[5] = mac[1];
@@ -9075,7 +9078,9 @@ bool WiFiScan::filterActive() {
   }
 #endif
 
-void WiFiScan::changeChannel(int chan) {
+
+void WiFiScan::changeChannel(int chan)
+{
   if (chan != -1)
     this->set_channel = chan;
   esp_wifi_set_channel(this->set_channel, WIFI_SECOND_CHAN_NONE);
@@ -9085,6 +9090,15 @@ void WiFiScan::changeChannel(int chan) {
       this->addAnalyzerValue(this->set_channel * -1, -72, this->_analyzer_values, TFT_WIDTH);
   #endif
 }
+
+/*
+ * Return current channel
+ */
+int WiFiScan::getChannel()
+{
+  return this->set_channel ;
+}
+
 
 // Function to cycle to the next channel
 void WiFiScan::channelHop(bool filtered, bool ranged) {

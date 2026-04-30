@@ -278,6 +278,7 @@ enum class MacSortMode : uint8_t {
 class WiFiScan
 {
   private:
+    uint8_t set_channel = 1;
     // Wardriver thanks to https://github.com/JosephHewitt
     int arp_count = 0;
     #ifndef HAS_PSRAM
@@ -743,8 +744,6 @@ class WiFiScan
 
     bool analyzer_name_update = false;
 
-    uint8_t set_channel = 1;
-
     uint8_t old_channel = 0;
 
     int16_t _analyzer_value = 0;
@@ -853,6 +852,7 @@ class WiFiScan
     bool joinWiFi(String ssid, String password, bool gui = true);
     void getMAC(bool get_sta, uint8_t* mac);
     void changeChannel(int chan = -1);
+    int getChannel();
     void RunAPInfo(uint16_t index, bool do_display = true);
     void RunInfo();
     void RunSetMac(uint8_t * mac, bool ap = true);

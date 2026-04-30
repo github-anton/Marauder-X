@@ -462,11 +462,10 @@ void CommandLine::runCommand(String input) {
     int ch_set = this->argSearch(&cmd_args, "-s");
 
     if (ch_set != -1) {
-      wifi_scan_obj->set_channel = cmd_args.get(ch_set + 1).toInt();
-      wifi_scan_obj->changeChannel();
-      Serial.println(wifi_scan_obj->set_channel);
+      wifi_scan_obj->changeChannel(cmd_args.get(ch_set + 1).toInt());
+      Serial.println(wifi_scan_obj->getChannel());
     }
-    Serial.println(wifi_scan_obj->set_channel);
+    Serial.println(wifi_scan_obj->getChannel());
   }
   // Clear APs
   else if (cmd_args.get(0) == CLEARAP_CMD) {
@@ -770,30 +769,30 @@ void CommandLine::runCommand(String input) {
       int d_sw = this->argSearch(&cmd_args, "-d"); // Deauth for pmkid
       int l_sw = this->argSearch(&cmd_args, "-l"); // Only run on list
 
-      if (l_sw != -1) {
+      if (l_sw != -1)
+      {
         if (!wifi_scan_obj->filterActive()) {
           Serial.println("You don't have any targets selected. Use " + (String)SEL_CMD);
           return;
         }
       }
       
-      if (ch_sw != -1) {
-        wifi_scan_obj->set_channel = cmd_args.get(ch_sw + 1).toInt();
-        wifi_scan_obj->changeChannel();
-        Serial.println("Set channel: " + (String)wifi_scan_obj->set_channel);
-        
+      if (ch_sw != -1)
+      {
+        wifi_scan_obj->changeChannel(cmd_args.get(ch_sw + 1).toInt());
+        Serial.println("Set channel: " + (String)wifi_scan_obj->getChannel());  
       }
 
       if (d_sw == -1) {
-        Serial.println("Starting PMKID sniff on channel " + (String)wifi_scan_obj->set_channel + ". Stop with " + (String)STOPSCAN_CMD);
+        Serial.println("Starting PMKID sniff on channel " + (String)wifi_scan_obj->getChannel() + ". Stop with " + (String)STOPSCAN_CMD);
         wifi_scan_obj->StartScan(WIFI_SCAN_EAPOL, TFT_VIOLET);
       }
       else if ((d_sw != -1) && (l_sw != -1)) {
-        Serial.println("Starting TARGETED PMKID sniff with deauthentication on channel " + (String)wifi_scan_obj->set_channel + ". Stop with " + (String)STOPSCAN_CMD);
+        Serial.println("Starting TARGETED PMKID sniff with deauthentication on channel " + (String)wifi_scan_obj->getChannel() + ". Stop with " + (String)STOPSCAN_CMD);
         wifi_scan_obj->StartScan(WIFI_SCAN_ACTIVE_LIST_EAPOL, TFT_VIOLET);
       }
       else {
-        Serial.println("Starting PMKID sniff with deauthentication on channel " + (String)wifi_scan_obj->set_channel + ". Stop with " + (String)STOPSCAN_CMD);
+        Serial.println("Starting PMKID sniff with deauthentication on channel " + (String)wifi_scan_obj->getChannel() + ". Stop with " + (String)STOPSCAN_CMD);
         wifi_scan_obj->StartScan(WIFI_SCAN_ACTIVE_EAPOL, TFT_VIOLET);
       }
     }    
