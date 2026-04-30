@@ -8072,8 +8072,9 @@ void WiFiScan::sendDeauthFrame(uint8_t bssid[6], int channel, uint8_t mac[6])
   if (this->getChannel() != channel)
   {  
     this->changeChannel(channel);
-    delay(1);
   }
+
+  Serial.printf("ch = %d\n\r", getChannel()) ;
 
   // Build AP source packet
   deauth_frame_default[4] = mac[0];
@@ -9081,6 +9082,7 @@ bool WiFiScan::filterActive() {
 
 void WiFiScan::changeChannel(int chan)
 {
+  Serial.printf("ch %d -> %d\n\r", set_channel, chan) ;
   if (chan != -1)
     this->set_channel = chan;
   esp_wifi_set_channel(this->set_channel, WIFI_SECOND_CHAN_NONE);
@@ -10382,6 +10384,7 @@ void WiFiScan::main(uint32_t currentTime)
     convertMacStringToUint8(this->dst_mac, dst_mac_bytes);
     for (int i = 0; i < access_points->size(); i++) {
       if (access_points->get(i).selected) {
+        Serial.printf("sel ch = %d\n\r", access_points->get(i).channel) ;
         for (int i = 0; i < 55; i++) {
           this->sendDeauthFrame(access_points->get(i).bssid, access_points->get(i).channel, dst_mac_bytes);
         }
