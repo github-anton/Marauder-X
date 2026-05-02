@@ -9083,10 +9083,12 @@ bool WiFiScan::filterActive() {
 void WiFiScan::changeChannel(int chan)
 {
   Serial.printf("ch %d -> %d\n\r", set_channel, chan) ;
-  if (chan != -1)
+  if (chan >= 0)
+  {
     this->set_channel = chan;
-  esp_wifi_set_channel(this->set_channel, WIFI_SECOND_CHAN_NONE);
-  delay(1);
+    esp_wifi_set_channel(this->set_channel, WIFI_SECOND_CHAN_NONE);
+    delay(1);
+  }
   #ifdef HAS_SCREEN
     if (this->currentScanMode == WIFI_SCAN_CHAN_ANALYZER)
       this->addAnalyzerValue(this->set_channel * -1, -72, this->_analyzer_values, TFT_WIDTH);
