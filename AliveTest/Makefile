@@ -1,9 +1,6 @@
 # Путь к твоему скачанному ядру v3
 ARDUINO_ESP32 = /home/anton/Arduino/hardware/espressif/arduino-esp32
 
-# BSP и SDK пути (в v3 всё разбросано по папке tools/sdk/esp32c5)
-SDK = $(ARDUINO_ESP32)/tools/sdk/esp32c5
-
 INCLUDES = \
 	-I$(ARDUINO_ESP32)/cores/esp32 \
 	-I$(ARDUINO_ESP32)/variants/esp32c5 \
@@ -41,7 +38,7 @@ INCLUDES = \
 # Твоя пропатченная libnet (путь к хидерам)
 INCLUDES += -I$(ARDUINO_ESP32)/tools/sdk/esp32c5/include/esp_wifi/include
 
-SOURCES = Sources/*.c*
+SOURCES = ../../Sources/*.c*
 
 
 # Флаги для C6 (RISC-V)
@@ -49,7 +46,7 @@ CC  = riscv32-esp-elf-gcc
 CXX = riscv32-esp-elf-g++
 AR  = riscv32-esp-elf-ar
 
-AUTOINCLUDE = -include $(ARDUINO_ESP32)/cores/esp32/Arduino.h
+AUTOINCLUDE = -include $(ARDUINO_ESP32)/cores/esp32/Arduino.h 
 
 CFLAGS = -march=rv32imc -mabi=ilp32 -Os -g -Wall \
          -DCONFIG_IDF_TARGET_ESP32C5 -DARDUINO=10810 -DESP32 -DARDUINO_ARCH_ESP32 \
@@ -60,11 +57,17 @@ CPPFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti -std=gnu++17 $(AUTOINCLUDE)
 # Линковка — тут ESP32 требует много бинарных библиотек
 LDFLAGS = -march=rv32imc -mabi=ilp32 -nostdlib \
           -Wl,--gc-sections -Wl,-static \
-          -T esp32c5.project.ld -T esp32c5.rom.ld \
-          -L$(SDK)/lib -L$(SDK)/ld
+          -L$(ARDUINO_ESP32)/tools/esp32-arduino-libs/esp32c5/ld \
+          -L$(ARDUINO_ESP32)/tools/esp32-arduino-libs/esp32c5/lib \
+          -L$(ARDUINO_ESP32)/tools/esp32-arduino-libs/esp32c5/dio_qspi
 
-# Библиотеки (добавь те, что нужны для атак)
-LDLIBS = -lnet80211 -lpp -lwifi_provisioning -lwpa_supplicant -lphy -lhal -lrtc
+LDSCRIPTS = -T esp32c5.rom.ld -T esp32c5.rom.systimer.ld \
+          	-T esp32c5.rom.newlib.ld -T esp32c5.rom.heap.ld -T esp32c5.rom.api.ld \
+          	-T memory.ld -T sections.ld
+
+# Required libraries
+LDLIBS = -lesp_system -lspi_flash -lbootloader_support -lesp_mm -lesp_hw_support \
+		 -lesp_driver_uart -lriscv -lfreertos -llog -lhal -lsoc -lfreertos
 
 BUILDS = Builds
 
@@ -78,14 +81,16 @@ OBJFILES := $(patsubst %.cpp,%.o,$(OBJFILES))
 # Правила сборки
 all: $(BUILDS)/main.bin
 
-$(BUILDS)/main.elf: $(OBJFILES) | $(BUILDS)
-	$(CXX) $(LDFLAGS) -o $@ $^ $(LDLIBS)
-
 $(BUILDS)/main.bin: $(BUILDS)/main.elf
-	# Для ESP32 нужен esptool для создания итогового образа
+	# Creating BIN file with esptool.py 
 	python3 $(ARDUINO_ESP32)/tools/esptool.py --chip esp32c5 elf2image -o $@ $<
 
-$(BUILDS)/%.o: Sources/%.cpp | $(BUILDS)
+$(BUILDS)/main.elf: $(OBJFILES) | $(BUILDS)
+	# Link the program into ELF file
+	$(CXX) $(LDFLAGS) $(LDSCRIPTS) -o $@ $^ $(LDLIBS)
+
+$(BUILDS)/%.o: ../../Sources/%.cpp | $(BUILDS)
+	# Compile .cpp source file
 	$(CXX) $(INCLUDES) $(CPPFLAGS) -o $@ -c $<
 
 $(BUILDS):
