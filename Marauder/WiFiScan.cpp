@@ -9083,6 +9083,7 @@ bool WiFiScan::filterActive() {
 void WiFiScan::changeChannel(int chan)
 {
   Serial.printf("ch %d -> %d\n\r", set_channel, chan) ;
+  
   if (chan >= 0)
   {
     this->set_channel = chan;
