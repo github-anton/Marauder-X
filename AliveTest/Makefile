@@ -67,7 +67,7 @@ LDSCRIPTS = -T esp32c5.rom.ld -T esp32c5.rom.systimer.ld \
 
 # Required libraries
 LDLIBS = -lesp_system -lspi_flash -lbootloader_support -lesp_mm -lesp_hw_support \
-		 -lesp_driver_uart -lriscv -lfreertos -llog -lhal -lsoc -lfreertos
+		 -lesp_driver_uart -lriscv -lfreertos -llog -lhal -lsoc -lfreertos -lnewlib
 
 BUILDS = Builds
 
