@@ -1,0 +1,50 @@
+From 2ed8d2f1f8b281fff2530c66b3115c4a72ea703e Mon Sep 17 00:00:00 2001
+From: Anton Ermakov <mail.aermakov@google.com>
+Date: Wed, 6 May 2026 15:43:12 +0300
+Subject: [PATCH] Fixed NimBLEScan constructor
+
+---
+ src/NimBLEScan.cpp | 4 ++--
+ src/NimBLEScan.h   | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/src/NimBLEScan.cpp b/src/NimBLEScan.cpp
+index 81700d29..2713ff2c 100644
+--- a/src/NimBLEScan.cpp
++++ b/src/NimBLEScan.cpp
+@@ -73,8 +73,8 @@ NimBLEScan::NimBLEScan()
+       m_scanParams{0, 0, BLE_HCI_SCAN_FILT_NO_WL, 0, 1, 1},
+       m_pTaskData{nullptr},
+       m_maxResults{0xFF} {
+-    ble_npl_callout_init(&m_srTimer, nimble_port_get_dflt_eventq(), NimBLEScan::srTimerCb, nullptr);
+-    ble_npl_time_ms_to_ticks(DEFAULT_SCAN_RESP_TIMEOUT_MS, &m_srTimeoutTicks);
++    // ble_npl_callout_init(&m_srTimer, nimble_port_get_dflt_eventq(), NimBLEScan::srTimerCb, nullptr);
++    // ble_npl_time_ms_to_ticks(DEFAULT_SCAN_RESP_TIMEOUT_MS, &m_srTimeoutTicks);
+ } // NimBLEScan::NimBLEScan
+ 
+ /**
+diff --git a/src/NimBLEScan.h b/src/NimBLEScan.h
+index 0c612851..8458462a 100644
+--- a/src/NimBLEScan.h
++++ b/src/NimBLEScan.h
+@@ -68,6 +68,8 @@ class NimBLEScanResults {
+  */
+ class NimBLEScan {
+   public:
++    NimBLEScan();
++    ~NimBLEScan();
+     bool              start(uint32_t duration, bool isContinue = false, bool restart = true);
+     bool              isScanning();
+     void              setScanCallbacks(NimBLEScanCallbacks* pScanCallbacks, bool wantDuplicates = false);
+@@ -177,8 +179,6 @@ class NimBLEScan {
+ # endif
+     } m_stats;
+ 
+-    NimBLEScan();
+-    ~NimBLEScan();
+     static int  handleGapEvent(ble_gap_event* event, void* arg);
+     void        onHostSync();
+     static void srTimerCb(ble_npl_event* event);
+-- 
+2.52.0
+

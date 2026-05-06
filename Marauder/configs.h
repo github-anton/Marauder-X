@@ -39,7 +39,7 @@
 
   #define JSON_SETTING_SIZE 2048
 
-  #define MARAUDER_VERSION "v1.11.4"
+  #define MARAUDER_VERSION "v1.11.5"
 
   #define GRAPH_REFRESH   100
 
@@ -117,6 +117,10 @@
     #define MARAUDER_MINI_V3
   #endif
 
+  //////////////////////////////////////////////////////////////////
+  // All devices use NIMBLE_2
+  //////////////////////////////////////////////////////////////////
+
   #if defined(MARAUDER_M5STICKC) || defined(MARAUDER_M5STICKCP2)
     //#define FLIPPER_ZERO_HAT
     #define HAS_MINI_KB
@@ -163,7 +167,6 @@
     #define USE_SD
     #define HAS_TEMP_SENSOR
     #define HAS_GPS
-    #define HAS_NIMBLE_2
     #define HAS_IDF_3
     //#define HAS_C5_SD
     #define HAS_SIMPLEX_DISPLAY
@@ -184,7 +187,6 @@
     #define USE_SD
     #define HAS_TEMP_SENSOR
     #define HAS_GPS
-    #define HAS_NIMBLE_2
     #define HAS_IDF_3
     #define HAS_C5_SD
   #endif
@@ -205,7 +207,6 @@
     #define HAS_TEMP_SENSOR
     #define HAS_GPS
     #define HAS_PSRAM
-    //#define HAS_NIMBLE_2
   #endif
 
   #ifdef MARAUDER_REV_FEATHER
@@ -238,7 +239,6 @@
     #define USE_SD
     #define HAS_TEMP_SENSOR
     #define HAS_GPS
-    #define HAS_NIMBLE_2
     #define HAS_IDF_3
     #define HAS_C5_SD
   #endif
@@ -258,7 +258,6 @@
     #define USE_SD
     #define HAS_TEMP_SENSOR
     #define HAS_GPS
-    #define HAS_NIMBLE_2
     #define HAS_IDF_3
     #define HAS_C5_SD
   #endif
@@ -280,7 +279,6 @@
     #define HAS_TEMP_SENSOR
     #define HAS_GPS
     #define HAS_CYD_TOUCH
-    //#define HAS_NIMBLE_2
   #endif
 
   #ifdef MARAUDER_CYD_2USB
@@ -301,7 +299,6 @@
     #define HAS_GPS
     #define HAS_CYD_TOUCH
     #define HAS_CYD_PORTRAIT
-    #define HAS_NIMBLE_2
     #define HAS_IDF_3
   #endif
 
@@ -324,7 +321,6 @@
     //#define HAS_CYD_TOUCH
     #define HAS_SEPARATE_SD
     #define HAS_CYD_PORTRAIT
-    //#define HAS_NIMBLE_2
   #endif
 
   #ifdef MARAUDER_CYD_GUITION
@@ -344,7 +340,6 @@
     #define HAS_TEMP_SENSOR
     #define HAS_GPS
     //#define HAS_CYD_TOUCH
-    //#define HAS_NIMBLE_2
   #endif
 
   #ifdef MARAUDER_KIT
@@ -361,7 +356,6 @@
     #define USE_SD
     #define HAS_TEMP_SENSOR
     #define HAS_GPS
-    #define HAS_NIMBLE_2
     #define HAS_IDF_3
     #define HAS_C5_SD
   #endif
@@ -377,7 +371,6 @@
     //#define HAS_SD
     //#define HAS_TEMP_SENSOR
     //#define HAS_GPS
-    //#define HAS_NIMBLE_2
   #endif
 
   #ifdef MARAUDER_FLIPPER
@@ -424,7 +417,6 @@
     #define USE_SD
     //#define HAS_TEMP_SENSOR
     //#define HAS_GPS
-    #define HAS_NIMBLE_2
     #define HAS_IDF_3
   #endif
 
@@ -440,7 +432,6 @@
     #define USE_SD
     //#define HAS_TEMP_SENSOR
     #define HAS_GPS
-    #define HAS_NIMBLE_2
     #define HAS_IDF_3
   #endif
 
@@ -474,7 +465,6 @@
     #define HAS_DUAL_BAND
     //#define HAS_PSRAM
     //#define HAS_TEMP_SENSOR
-    #define HAS_NIMBLE_2
     #define HAS_IDF_3
   #endif
 
@@ -495,7 +485,6 @@
     //#define HAS_DUAL_BAND
     //#define HAS_PSRAM
     //#define HAS_TEMP_SENSOR
-    #define HAS_NIMBLE_2
     #define HAS_IDF_3
   #endif
 
@@ -517,7 +506,6 @@
     #define HAS_DUAL_BAND
     #define HAS_PSRAM
     //#define HAS_TEMP_SENSOR
-    #define HAS_NIMBLE_2
     #define HAS_IDF_3
   #endif
 
@@ -540,7 +528,6 @@
     #define HAS_DUAL_BAND
     #define HAS_PSRAM
     //#define HAS_TEMP_SENSOR
-    #define HAS_NIMBLE_2
     #define HAS_IDF_3
     //#define HAS_SIMPLEX_DISPLAY
   #endif

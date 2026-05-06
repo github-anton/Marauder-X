@@ -40,9 +40,6 @@
   #include "esp_system.h"
   #include "esp_mac.h"
 #endif
-#if defined(HAS_BT) && !defined(HAS_NIMBLE_2)
-  #include "esp_bt.h"
-#endif
 #ifdef HAS_SCREEN
   #include "Display.h"
 #endif
@@ -327,9 +324,6 @@ class WiFiScan
     const wifi_promiscuous_filter_t filt = {
       .filter_mask=WIFI_PROMIS_FILTER_MASK_MGMT | WIFI_PROMIS_FILTER_MASK_DATA | WIFI_PROMIS_FILTER_MASK_CTRL
       };
-    #ifdef HAS_BT
-      NimBLEScan* pBLEScan;
-    #endif
 
     const char* rick_roll[8] = {
       "01 Never gonna give you up",

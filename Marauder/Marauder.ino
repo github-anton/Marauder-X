@@ -75,6 +75,10 @@ Buffer *buffer_obj = NULL;
 Settings *settings = NULL;
 CommandLine *cli_obj = NULL;
 
+#ifdef HAS_BT
+  NimBLEScan* pBLEScan ;
+#endif
+
 #ifdef HAS_GPS
   GpsInterface gps_obj;
 #endif
@@ -241,6 +245,9 @@ void setup()
   // This is more convinient for debugging than
   // static initialization. I initialization fails, I
   // will see exact line.
+  #ifdef HAS_BT
+    pBLEScan = new NimBLEScan ;
+  #endif
   wifi_scan_obj = new WiFiScan ;
   evil_portal_obj = new EvilPortal ;
   buffer_obj = new Buffer ;

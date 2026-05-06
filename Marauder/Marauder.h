@@ -15,6 +15,10 @@
 #include "Display.h"
 
 
+#ifdef HAS_BT
+  extern NimBLEScan* pBLEScan ;
+#endif
+
 extern Settings *settings ;
 extern WiFiScan *wifi_scan_obj;
 extern Buffer *buffer_obj;
