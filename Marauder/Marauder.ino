@@ -14,6 +14,10 @@ https://www.online-utility.org/image/convert/to/XBM
 
 #include <stdio.h>
 
+#ifdef HAS_ZIGBEE
+  #include "ZigBeeScan.h"
+#endif
+
 #ifdef HAS_GPS
   #include "GpsInterface.h"
 #endif
@@ -50,7 +54,9 @@ https://www.online-utility.org/image/convert/to/XBM
 
 #ifdef HAS_BUTTONS
   #include "Switches.h"
-  
+#endif
+
+#ifdef HAS_BUTTONS
   #if (U_BTN >= 0)
     Switches u_btn = Switches(U_BTN, 1000, U_PULL);
   #endif
@@ -66,8 +72,8 @@ https://www.online-utility.org/image/convert/to/XBM
   #if (C_BTN >= 0)
     Switches c_btn = Switches(C_BTN, 1000, C_PULL);
   #endif
-
 #endif
+
 
 WiFiScan *wifi_scan_obj = NULL ;
 EvilPortal *evil_portal_obj = NULL;
@@ -77,6 +83,10 @@ CommandLine *cli_obj = NULL;
 
 #ifdef HAS_BT
   NimBLEScan* pBLEScan ;
+#endif
+
+#ifdef HAS_ZIGBEE
+  ZigBeeScan *pZigBeeScan ;
 #endif
 
 #ifdef HAS_GPS
@@ -245,9 +255,15 @@ void setup()
   // This is more convinient for debugging than
   // static initialization. I initialization fails, I
   // will see exact line.
+  
   #ifdef HAS_BT
     pBLEScan = new NimBLEScan ;
   #endif
+
+  #ifdef HAS_ZIGBEE
+    pZigBeeScan = new ZigBeeScan ;
+  #endif
+
   wifi_scan_obj = new WiFiScan ;
   evil_portal_obj = new EvilPortal ;
   buffer_obj = new Buffer ;

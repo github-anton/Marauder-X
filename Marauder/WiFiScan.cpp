@@ -270,7 +270,10 @@ extern "C" {
     return AdvData;
   }
   
+  
+  //////////////////////////////////////////////////////////////////////
   //// https://github.com/Spooks4576
+  //////////////////////////////////////////////////////////////////////
   class bluetoothScanAllCallback: public NimBLEScanCallbacks {
 
         void onResult(const NimBLEAdvertisedDevice* advertisedDevice) override {
