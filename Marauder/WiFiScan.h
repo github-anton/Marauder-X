@@ -870,7 +870,7 @@ class WiFiScan
     void RunSetupGPSTracker(uint8_t scan_mode);
     void channelHop(bool filtered = false, bool ranged = false);
     uint8_t currentScanMode = 0;
-    void main(uint32_t currentTime);
+    void loop(uint32_t currentTime);
     void StartScan(uint8_t scan_mode, uint16_t color = 0);
     void StopScan(uint8_t scan_mode);
     void setBaseMacAddress(uint8_t macAddr[6]);

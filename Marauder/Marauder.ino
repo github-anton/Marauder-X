@@ -464,7 +464,7 @@ void loop()
 
   // Update all of our objects
   cli_obj->main(currentTime);
-  wifi_scan_obj->main(currentTime);
+  wifi_scan_obj->loop(currentTime);
 
   #ifdef HAS_GPS
     gps_obj.main();
