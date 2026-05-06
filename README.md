@@ -15,3 +15,4 @@ DevKit Optimized: Predefined pin configurations for popular development boards.
 ## Supported hardware
 
     ESP32-C5	2.4 + 5 GHz	Wi-Fi 6	✅ Works (Dual-Band Deauth)
+    ESP32-C6	2.4     GHz	Wi-Fi 6	✅ Works
