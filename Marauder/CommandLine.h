@@ -116,6 +116,9 @@ const char PROGMEM BT_SPOOFAT_CMD[] = "spoofat";
 //const char PROGMEM BT_WARDRIVE_CMD[] = "btwardrive";
 const char PROGMEM BT_SKIM_CMD[] = "sniffskim";
 
+// ZigBee sniff/scan
+const char PROGMEM ZIGBEE_SCAN_CMD[] = "scanz" ;
+
 // POI
 const char PROGMEM WARDRIVEPOI_CMD[] = "wardrivepoi";
 
@@ -194,6 +197,9 @@ const char PROGMEM HELP_BT_SPOOFAT_CMD[] = "spoofat -t <index>";
 //const char PROGMEM HELP_BT_WARDRIVE_CMD[] = "btwardrive";
 const char PROGMEM HELP_BT_SKIM_CMD[] = "sniffskim";
 
+// ZigBee sniff/scan
+const char PROGMEM HELP_ZIGBEE_SCAN_CMD[] = "scanz" ;
+
 const char PROGMEM BRIGHTNESS_CMD[] = "brightness";
 const char PROGMEM HELP_BRIGHTNESS_CMD[] = "brightness [-c cycle] [-s <0-9>]";
 
@@ -207,7 +213,7 @@ class CommandLine {
     LinkedList<String> parseCommand(String input, char* delim);
     String toLowerCase(String str);
     void filterAccessPoints(String filter);
-    void runCommand(String input);
+    void runCommand(String input, uint32_t currentTime);
     bool checkValueExists(LinkedList<String>* cmd_args_list, int index);
     bool inRange(int max, int index);
     //bool apSelected();

@@ -5,7 +5,7 @@ Partition Scheme: Minimal SPIFFS
 https://www.online-utility.org/image/convert/to/XBM
 */
 
-#include "configs.h"
+#include "Marauder.h"
 
 #ifndef HAS_SCREEN
   #define MenuFunctions_h
@@ -13,10 +13,6 @@ https://www.online-utility.org/image/convert/to/XBM
 #endif
 
 #include <stdio.h>
-
-#ifdef HAS_ZIGBEE
-  #include "ZigBeeScan.h"
-#endif
 
 #ifdef HAS_GPS
   #include "GpsInterface.h"
@@ -485,6 +481,9 @@ void loop()
   // Update all of our objects
   cli_obj->main(currentTime);
   wifi_scan_obj->loop(currentTime);
+  #ifdef HAS_ZIGBEE
+    pZigBeeScan->loop(currentTime) ;
+  #endif
 
   #ifdef HAS_GPS
     gps_obj.main();
