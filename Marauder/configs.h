@@ -29,8 +29,8 @@
   //#define MARAUDER_CYD_2USB // Another 2432S028 but it has tWo UsBs OoOoOoO
   //#define MARAUDER_CYD_GUITION // ESP32-2432S024 GUITION
   //#define MARAUDER_CYD_3_5_INCH
-  //#define MARAUDER_C5
-  #define MARAUDER_C6
+  #define MARAUDER_C5
+  //#define MARAUDER_C6
   //#define MARAUDER_CARDPUTER
   //#define MARAUDER_V8
   //#define MARAUDER_MINI_V3
@@ -39,7 +39,7 @@
 
   #define JSON_SETTING_SIZE 2048
 
-  #define MARAUDER_VERSION "v1.11.5"
+  #define MARAUDER_VERSION "v1.11.6"
 
   #define GRAPH_REFRESH   100
 

@@ -390,9 +390,6 @@ void setup()
     settings->createDefaultSettings(SPIFFS);
   }
 
-  // FIXME: I have already Initialized buffer_obj
-  // buffer_obj = Buffer();
-
   #ifndef HAS_SIMPLEX_DISPLAY
     #if defined(HAS_SD)
       // Do some SD stuff
@@ -515,9 +512,5 @@ void loop()
     led_obj->main(currentTime);
   #endif
 
-  #ifdef HAS_SCREEN
-    delay(1);
-  #else
-    delay(10);
-  #endif
+  delay (1) ;
 }
