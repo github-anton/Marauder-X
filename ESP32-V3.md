@@ -58,6 +58,3 @@ Using the provided libnet_patcher.py script, we replace the signature with:
 
 Success!
 
-
-Best wishes,
-    Anton
