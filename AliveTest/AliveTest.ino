@@ -4,17 +4,16 @@
  * For testing new boards.
  */
 
-
 void setup()
 {
 	Serial.begin(115200);
 }
 
+
 void loop()
 {
-	while (true)
-	{
-		Serial.printf("I'm alive!\n\r");
-		delay (500) ;
-	}
+	static int i ;
+
+	Serial.printf("I'm alive! %d\n\r", i++);
+	delay (500) ;
 }

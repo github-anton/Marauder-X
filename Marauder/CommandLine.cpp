@@ -11,10 +11,11 @@
 void CommandLine::RunSetup() {
   Serial.println(this->ascii_art);
 
-  Serial.println(F("\n\n--------------------------------\n"));
-  Serial.println(F("         ESP32 Marauder      \n"));
-  Serial.println("            " + version_number + "\n");
-  Serial.println(F("       By: justcallmekoko\n"));
+  Serial.printf("\n\r\n\r") ;
+  Serial.println(F("--------------------------------\n"));
+  Serial.println(F("         ESP32 Marauder\n"));
+  Serial.println(  "            " + version_number + "\n");
+  Serial.println(F("   By: JustCallMeKoko & Anton\n"));
   Serial.println(F("--------------------------------\n\n"));
   
   Serial.print("> ");
@@ -30,14 +31,16 @@ String CommandLine::getSerialInput() {
   return input;
 }
 
+
 void CommandLine::main(uint32_t currentTime) {
   String input = this->getSerialInput();
 
-  this->runCommand(input);
+  this->runCommand(input, currentTime);
 
   if (input != "")
     Serial.print("> ");
 }
+
 
 LinkedList<String> CommandLine::parseCommand(String input, char* delim) {
   LinkedList<String> cmd_args;
@@ -209,7 +212,7 @@ void CommandLine::startScanFromCLI(int scan_mode, uint16_t color, String scan_na
   wifi_scan_obj->StartScan(scan_mode, color);
 }
 
-void CommandLine::runCommand(String input) {
+void CommandLine::runCommand(String input, uint32_t currentTime) {
   if (input == "") return;
 
   if(wifi_scan_obj->scanning() && wifi_scan_obj->currentScanMode == WIFI_SCAN_GPS_NMEA){
@@ -295,6 +298,12 @@ void CommandLine::runCommand(String input) {
       Serial.println(HELP_BT_SPOOFAT_CMD);
       Serial.println(HELP_BT_SKIM_CMD);
     #endif
+
+    // ZigBee Sniff/scan
+    #ifdef HAS_ZIGBEE
+      Serial.println(HELP_ZIGBEE_SCAN_CMD) ;
+    #endif
+
     Serial.println(HELP_BRIGHTNESS_CMD);
     Serial.println(HELP_FOOT);
     return;
@@ -1159,6 +1168,12 @@ void CommandLine::runCommand(String input) {
       #else
         Serial.println(F("Bluetooth not supported"));
       #endif
+    }
+
+    else if (cmd_args.get(0) == ZIGBEE_SCAN_CMD) {
+
+        Serial.printf("Starting ZigBee scan. Stop with %s\n\r", STOPSCAN_CMD);
+        pZigBeeScan->start(currentTime, ZIGBEE_SCAN_COORDINATORS);
     }
 
     // Brightness command

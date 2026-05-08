@@ -29,8 +29,8 @@
   //#define MARAUDER_CYD_2USB // Another 2432S028 but it has tWo UsBs OoOoOoO
   //#define MARAUDER_CYD_GUITION // ESP32-2432S024 GUITION
   //#define MARAUDER_CYD_3_5_INCH
-  #define MARAUDER_C5
-  //#define MARAUDER_C6
+  //#define MARAUDER_C5
+  #define MARAUDER_C6
   //#define MARAUDER_CARDPUTER
   //#define MARAUDER_V8
   //#define MARAUDER_MINI_V3
@@ -39,7 +39,7 @@
 
   #define JSON_SETTING_SIZE 2048
 
-  #define MARAUDER_VERSION "v1.11.4"
+  #define MARAUDER_VERSION "v1.11.6"
 
   #define GRAPH_REFRESH   100
 
@@ -117,6 +117,10 @@
     #define MARAUDER_MINI_V3
   #endif
 
+  //////////////////////////////////////////////////////////////////
+  // All devices use NIMBLE_2
+  //////////////////////////////////////////////////////////////////
+
   #if defined(MARAUDER_M5STICKC) || defined(MARAUDER_M5STICKCP2)
     //#define FLIPPER_ZERO_HAT
     #define HAS_MINI_KB
@@ -163,7 +167,6 @@
     #define USE_SD
     #define HAS_TEMP_SENSOR
     #define HAS_GPS
-    #define HAS_NIMBLE_2
     #define HAS_IDF_3
     //#define HAS_C5_SD
     #define HAS_SIMPLEX_DISPLAY
@@ -184,7 +187,6 @@
     #define USE_SD
     #define HAS_TEMP_SENSOR
     #define HAS_GPS
-    #define HAS_NIMBLE_2
     #define HAS_IDF_3
     #define HAS_C5_SD
   #endif
@@ -205,7 +207,6 @@
     #define HAS_TEMP_SENSOR
     #define HAS_GPS
     #define HAS_PSRAM
-    //#define HAS_NIMBLE_2
   #endif
 
   #ifdef MARAUDER_REV_FEATHER
@@ -238,7 +239,6 @@
     #define USE_SD
     #define HAS_TEMP_SENSOR
     #define HAS_GPS
-    #define HAS_NIMBLE_2
     #define HAS_IDF_3
     #define HAS_C5_SD
   #endif
@@ -258,7 +258,6 @@
     #define USE_SD
     #define HAS_TEMP_SENSOR
     #define HAS_GPS
-    #define HAS_NIMBLE_2
     #define HAS_IDF_3
     #define HAS_C5_SD
   #endif
@@ -280,7 +279,6 @@
     #define HAS_TEMP_SENSOR
     #define HAS_GPS
     #define HAS_CYD_TOUCH
-    //#define HAS_NIMBLE_2
   #endif
 
   #ifdef MARAUDER_CYD_2USB
@@ -301,7 +299,6 @@
     #define HAS_GPS
     #define HAS_CYD_TOUCH
     #define HAS_CYD_PORTRAIT
-    #define HAS_NIMBLE_2
     #define HAS_IDF_3
   #endif
 
@@ -324,7 +321,6 @@
     //#define HAS_CYD_TOUCH
     #define HAS_SEPARATE_SD
     #define HAS_CYD_PORTRAIT
-    //#define HAS_NIMBLE_2
   #endif
 
   #ifdef MARAUDER_CYD_GUITION
@@ -344,7 +340,6 @@
     #define HAS_TEMP_SENSOR
     #define HAS_GPS
     //#define HAS_CYD_TOUCH
-    //#define HAS_NIMBLE_2
   #endif
 
   #ifdef MARAUDER_KIT
@@ -361,7 +356,6 @@
     #define USE_SD
     #define HAS_TEMP_SENSOR
     #define HAS_GPS
-    #define HAS_NIMBLE_2
     #define HAS_IDF_3
     #define HAS_C5_SD
   #endif
@@ -377,7 +371,6 @@
     //#define HAS_SD
     //#define HAS_TEMP_SENSOR
     //#define HAS_GPS
-    //#define HAS_NIMBLE_2
   #endif
 
   #ifdef MARAUDER_FLIPPER
@@ -424,7 +417,6 @@
     #define USE_SD
     //#define HAS_TEMP_SENSOR
     //#define HAS_GPS
-    #define HAS_NIMBLE_2
     #define HAS_IDF_3
   #endif
 
@@ -440,7 +432,6 @@
     #define USE_SD
     //#define HAS_TEMP_SENSOR
     #define HAS_GPS
-    #define HAS_NIMBLE_2
     #define HAS_IDF_3
   #endif
 
@@ -474,7 +465,6 @@
     #define HAS_DUAL_BAND
     //#define HAS_PSRAM
     //#define HAS_TEMP_SENSOR
-    #define HAS_NIMBLE_2
     #define HAS_IDF_3
   #endif
 
@@ -484,6 +474,7 @@
     //#define FLIPPER_ZERO_HAT
     //#define HAS_BATTERY
     #define HAS_BT
+    #define HAS_ZIGBEE
     //#define HAS_BUTTONS
     #define HAS_NEOPIXEL_LED
     //#define HAS_PWR_MGMT
@@ -495,7 +486,6 @@
     //#define HAS_DUAL_BAND
     //#define HAS_PSRAM
     //#define HAS_TEMP_SENSOR
-    #define HAS_NIMBLE_2
     #define HAS_IDF_3
   #endif
 
@@ -517,7 +507,6 @@
     #define HAS_DUAL_BAND
     #define HAS_PSRAM
     //#define HAS_TEMP_SENSOR
-    #define HAS_NIMBLE_2
     #define HAS_IDF_3
   #endif
 
@@ -540,7 +529,6 @@
     #define HAS_DUAL_BAND
     #define HAS_PSRAM
     //#define HAS_TEMP_SENSOR
-    #define HAS_NIMBLE_2
     #define HAS_IDF_3
     //#define HAS_SIMPLEX_DISPLAY
   #endif

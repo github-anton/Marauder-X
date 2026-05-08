@@ -7,6 +7,9 @@
 #include "configs.h"
 #include "Settings.h"
 #include "WiFiScan.h"
+#ifdef HAS_ZIGBEE
+  #include "ZigBeeScan.h"
+#endif
 #include "SDInterface.h"
 #include "BatteryInterface.h"
 #include "Buffer.h"
@@ -14,6 +17,14 @@
 #include "GpsInterface.h"
 #include "Display.h"
 
+
+#ifdef HAS_BT
+  extern NimBLEScan* pBLEScan ;
+#endif
+
+#ifdef HAS_ZIGBEE
+  extern ZigBeeScan *pZigBeeScan ;
+#endif
 
 extern Settings *settings ;
 extern WiFiScan *wifi_scan_obj;
