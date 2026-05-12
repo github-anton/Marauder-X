@@ -321,6 +321,7 @@ void CommandLine::runCommand(String input, uint32_t currentTime) {
     }
 
     wifi_scan_obj->StartScan(WIFI_SCAN_OFF);
+    pZigBeeScan->stop() ;
 
     if(old_scan_mode == WIFI_SCAN_GPS_NMEA)
       Serial.println(F("END OF NMEA STREAM"));

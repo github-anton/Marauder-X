@@ -39,7 +39,7 @@
 
   #define JSON_SETTING_SIZE 2048
 
-  #define MARAUDER_VERSION "v1.11.6"
+  #define MARAUDER_VERSION "v1.11.7"
 
   #define GRAPH_REFRESH   100
 

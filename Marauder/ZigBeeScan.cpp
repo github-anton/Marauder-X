@@ -7,6 +7,7 @@
 
 // Program includes
 #include "ZigBeeScan.h"
+#include "Marauder.h"
  
  // System includes
 #include <esp_ieee802154.h>
@@ -15,14 +16,15 @@
 
 #ifdef HAS_ZIGBEE
 // Этот колбэк вызывается драйвером при успешном приеме
-void esp_ieee802154_receive_done(uint8_t *frame, esp_ieee802154_frame_info_t *frame_info) {
+extern "C" void esp_ieee802154_receive_done(uint8_t *frame, esp_ieee802154_frame_info_t *frame_info) {
     // frame - это указатель на сырые данные (начиная с заголовка MAC)
     // frame[0] - первый байт длины кадра (PHR)
-    
+
     // Передаем данные в твой парсер маяков
-    pZigBeeScan->parse(frame, frame_info);
+    pZigBeeScan->parse(frame, frame_info->rssi);
 }
 #endif
+
 
 ZigBeeScan::ZigBeeScan()
 {
@@ -76,6 +78,14 @@ void ZigBeeScan::start(uint32_t currentTime, uint32_t type)
 }
 
 
+void ZigBeeScan::stop()
+{
+    this->type = ZIGBEE_SCAN_NOTHING ;
+
+    esp_ieee802154_disable();
+}
+
+
 void ZigBeeScan::loop(uint32_t currentTime)
 {
     if (type & ZIGBEE_SCAN_COORDINATORS)
@@ -95,15 +105,18 @@ void ZigBeeScan::loop(uint32_t currentTime)
             {
                 selectChannel(ZIGBEE_FIRST_CHANNEL) ;
             }
+
+            // Send beacon request
+            //esp_ieee802154_transmit() ;
         }
     }
 }
 
 
-void ZigBeeScan::parse(uint8_t *frame, uint8_t length)
+void ZigBeeScan::parse(uint8_t *frame, int RSSI)
 {
     // Минимум: FCF(2) + Seq(1) + PANID(2) + Addr(2) = 7 байт
-    if (length < 7) return; 
+    if (frame[0] < 7) return; 
 
     Serial.printf("FRAME: %X %X %X\n\r", frame[0], frame[1], frame[2]) ;
 }
