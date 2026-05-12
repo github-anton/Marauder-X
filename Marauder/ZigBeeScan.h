@@ -37,8 +37,9 @@ public:
   ZigBeeScan() ;
   ~ZigBeeScan() ;
   void start(uint32_t currentTime, uint32_t type) ;
+  void stop() ;
   void loop(uint32_t currentTime) ;
-  void parse(uint8_t *frame, uint8_t length) ;
+  void parse(uint8_t *frame, int RSSI) ;
   uint8_t getChannel() ;
   void selectChannel(uint8_t channel) ;
 
