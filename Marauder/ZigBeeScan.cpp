@@ -91,10 +91,10 @@ void ZigBeeScan::loop(uint32_t currentTime)
     if (type & ZIGBEE_SCAN_COORDINATORS)
     {
         // Switch channel if time is out
-        if(currentTime - startTime > 1000)
+        if(currentTime - startTime > 2000)
         {
             startTime = currentTime ;
-            int RSSI = esp_ieee802154_get_recent_rssi();
+            int RSSI = esp_ieee802154_get_recent_rssi() ;
             Serial.printf("CH%i, RSS=%d\n\r", channel, RSSI) ;
 
             if (channel < ZIGBEE_LAST_CHANNEL)
@@ -106,8 +106,7 @@ void ZigBeeScan::loop(uint32_t currentTime)
                 selectChannel(ZIGBEE_FIRST_CHANNEL) ;
             }
 
-            // Send beacon request
-            //esp_ieee802154_transmit() ;
+            sendBeaconRequest() ;
         }
     }
 }
@@ -118,5 +117,29 @@ void ZigBeeScan::parse(uint8_t *frame, int RSSI)
     // Минимум: FCF(2) + Seq(1) + PANID(2) + Addr(2) = 7 байт
     if (frame[0] < 7) return; 
 
-    Serial.printf("FRAME: %X %X %X\n\r", frame[0], frame[1], frame[2]) ;
+    Serial.printf("FRAME %d, L=%d:", RSSI, frame[0]) ;
+    for (int i = 1; i < frame[0] + 1; i++)
+    {
+        Serial.printf(" %X", frame[i]) ;
+    }
+    Serial.printf("\n\r") ;
+}
+
+
+void ZigBeeScan::sendBeaconRequest() {
+    static uint8_t seq_num = 0;
+    
+    // Буфер пакета: PHR (длина) + MHR (данные)
+    // Первый байт [0] - это длина всех последующих байт (7 байт)
+    uint8_t packet[9] = {
+        0x08,          // Длина пакета (8 байт после этого байта)
+        0x03, 0x08,    // FCF (Frame Control)
+        seq_num++,     // Номер последовательности
+        0xFF, 0xFF,    // Dest PAN ID (Broadcast)
+        0xFF, 0xFF,    // Dest Address (Broadcast)
+        0x07           // Command Identifier: Beacon Request
+    };
+
+    // Отправляем сырой пакет
+    esp_ieee802154_transmit(packet, false);
 }
