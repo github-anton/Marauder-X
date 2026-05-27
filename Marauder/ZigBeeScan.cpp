@@ -80,9 +80,13 @@ void ZigBeeScan::start(uint32_t currentTime, uint32_t type)
 
 void ZigBeeScan::stop()
 {
-    this->type = ZIGBEE_SCAN_NOTHING ;
+    if (this->type != ZIGBEE_SCAN_NOTHING)
+    {
+        Serial.printf("Stopping ZigBee tran/recv\n\r") ;
 
-    esp_ieee802154_disable();
+        this->type = ZIGBEE_SCAN_NOTHING ;
+        esp_ieee802154_disable();
+    }
 }
 
 
@@ -95,7 +99,7 @@ void ZigBeeScan::loop(uint32_t currentTime)
         {
             startTime = currentTime ;
             int RSSI = esp_ieee802154_get_recent_rssi() ;
-            Serial.printf("CH%i, RSS=%d\n\r", channel, RSSI) ;
+            Serial.printf("CH%i, RSSI=%d\n\r", channel, RSSI) ;
 
             if (channel < ZIGBEE_LAST_CHANNEL)
             {

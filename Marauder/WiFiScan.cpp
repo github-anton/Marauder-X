@@ -1722,6 +1722,12 @@ bool WiFiScan::shutdownBLE() {
 
 // Function to stop all wifi scans
 void WiFiScan::StopScan(uint8_t scan_mode) {
+  
+  if ((currentScanMode != WIFI_SCAN_OFF) && this->wifi_initialized)
+  {
+    Serial.printf("Stopping WiFi tran/recv\n\r") ;
+  }
+
   if ((currentScanMode == WIFI_SCAN_PROBE) ||
   (currentScanMode == WIFI_SCAN_SAE_COMMIT) ||
   (currentScanMode == WIFI_SCAN_AP) ||

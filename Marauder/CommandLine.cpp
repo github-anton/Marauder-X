@@ -13,7 +13,7 @@ void CommandLine::RunSetup() {
 
   Serial.printf("\n\r\n\r") ;
   Serial.println(F("--------------------------------\n"));
-  Serial.println(F("         ESP32 Marauder\n"));
+  Serial.println(F("           Marauder-X \n"));
   Serial.println(  "            " + version_number + "\n");
   Serial.println(F("   By: JustCallMeKoko & Anton\n"));
   Serial.println(F("--------------------------------\n\n"));
@@ -327,8 +327,6 @@ void CommandLine::runCommand(String input, uint32_t currentTime) {
       Serial.println(F("END OF NMEA STREAM"));
     else if(old_scan_mode == WIFI_SCAN_GPS_DATA)
       Serial.println(F("Stopping GPS data updates"));
-    else
-      Serial.println(F("Stopping WiFi tran/recv"));
 
     // If we don't do this, the text and button coordinates will be off
     #ifdef HAS_SCREEN
