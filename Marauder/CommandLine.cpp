@@ -321,7 +321,9 @@ void CommandLine::runCommand(String input, uint32_t currentTime) {
     }
 
     wifi_scan_obj->StartScan(WIFI_SCAN_OFF);
+    #ifdef HAS_ZIGBEE
     pZigBeeScan->stop() ;
+    #endif
 
     if(old_scan_mode == WIFI_SCAN_GPS_NMEA)
       Serial.println(F("END OF NMEA STREAM"));
@@ -1172,7 +1174,9 @@ void CommandLine::runCommand(String input, uint32_t currentTime) {
     else if (cmd_args.get(0) == ZIGBEE_SCAN_CMD) {
 
         Serial.printf("Starting ZigBee scan. Stop with %s\n\r", STOPSCAN_CMD);
+        #ifdef HAS_ZIGBEE
         pZigBeeScan->start(currentTime, ZIGBEE_SCAN_COORDINATORS);
+        #endif
     }
 
     // Brightness command
