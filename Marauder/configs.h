@@ -457,7 +457,7 @@
     //#define HAS_BUTTONS
     #define HAS_NEOPIXEL_LED
     //#define HAS_PWR_MGMT
-    //#define HAS_SCREEN
+    #define HAS_SCREEN
     //#define HAS_GPS
     //#define HAS_C5_SD
     //#define HAS_SD
