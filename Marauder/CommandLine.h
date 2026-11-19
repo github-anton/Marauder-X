@@ -97,6 +97,7 @@ const char PROGMEM ATTACK_TYPE_QUIET[] = "quiet";
 
 // WiFi Aux
 const char PROGMEM LIST_AP_CMD[] = "list";
+const char         SET_CMD[] = "set" ;    // Set a channel for access point in a list
 const char PROGMEM INFO_CMD[] = "info";
 const char PROGMEM SEL_CMD[] = "select";
 const char PROGMEM SSID_CMD[] = "ssid";
@@ -172,6 +173,7 @@ const char PROGMEM HELP_LIST_AP_CMD_C[] = "list -c";
 const char PROGMEM HELP_LIST_AP_CMD_D[] = "list -t";
 const char PROGMEM HELP_LIST_AP_CMD_E[] = "list -i";
 const char PROGMEM HELP_LIST_AP_CMD_F[] = "list -p";
+const char         HELP_SET_CMD[] = "set <index> -c <channel>" ;
 const char PROGMEM HELP_INFO_CMD[] = "info [-a <index>]";
 const char PROGMEM HELP_SEL_CMD_A[] = "select -a/-s/-c <index (comma separated)>/-f \"equals <String> or contains <String>\"";
 const char PROGMEM HELP_SSID_CMD_A[] = "ssid -a [-g <count>/-n <name>]";

@@ -3401,13 +3401,15 @@ void WiFiScan::RunInfo() {
   Serial.println("Hardware: " + (String)HARDWARE_NAME);
   Serial.println(text_table4[22] + (String)esp_get_idf_version());
 
-  if (this->wsl_bypass_enabled) {
+  if (this->wsl_bypass_enabled)
+  {
     #ifdef HAS_SCREEN
       display_obj.tft.println(text_table4[23]);
     #endif
     Serial.println(text_table4[23]);
   }
-  else {
+  else
+  {
     #ifdef HAS_SCREEN
       display_obj.tft.println(text_table4[24]);
     #endif

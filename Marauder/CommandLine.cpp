@@ -278,6 +278,7 @@ void CommandLine::runCommand(String input, uint32_t currentTime) {
     Serial.println(HELP_LIST_AP_CMD_D);
     Serial.println(HELP_LIST_AP_CMD_E);
     Serial.println(HELP_LIST_AP_CMD_F);
+    Serial.println(HELP_SET_CMD) ;
     Serial.println(HELP_SEL_CMD_A);
     Serial.println(HELP_SSID_CMD_A);
     Serial.println(HELP_SSID_CMD_B);
@@ -1439,6 +1440,17 @@ void CommandLine::runCommand(String input, uint32_t currentTime) {
       #endif
       wifi_scan_obj->RunInfo();
     }
+  }
+  else if (cmd_args.get(0) == SET_CMD) {
+    // Get list index from command line
+    int i = cmd_args.get(1).toInt() ;
+    // Get new channel from command line
+    int new_ch = cmd_args.get(this->argSearch(&cmd_args, "-c") + 1 ).toInt();
+    AccessPoint ap = access_points->get(i);
+    int old_ch = ap.channel ;
+    ap.channel = new_ch ;
+    access_points->set(i, ap) ;
+    Serial.printf("%s: ch%i -> ch%i\n", ap.essid.c_str(), old_ch, new_ch) ;
   }
   else if (cmd_args.get(0) == JOIN_CMD) {
     int ap_sw = this->argSearch(&cmd_args, "-a");
