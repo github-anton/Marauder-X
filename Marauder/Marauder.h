@@ -19,7 +19,7 @@
 
 
 #ifdef HAS_BT
-  extern NimBLEScan* pBLEScan ;
+  extern BLEScan* pBLEScan ;
 #endif
 
 #ifdef HAS_ZIGBEE

@@ -11,7 +11,7 @@
 #include <vector>
 
 #ifdef HAS_BT
-  #include <NimBLEDevice.h> // 1.3.8, 2.3.2
+  #include <BLEDevice.h> // 1.3.8, 2.3.2
 #endif
 
 #ifdef HAS_IDF_3
@@ -251,8 +251,8 @@ struct MacEntry {
 
 struct AirTag {
     String mac;                  // MAC address of the AirTag
-    std::vector<uint8_t> payload; // Payload data
-    uint16_t payloadSize;
+    char* payload; // Payload data
+    size_t payloadSize;
     bool selected;
     int8_t rssi;
     uint32_t last_seen;
@@ -551,8 +551,8 @@ class WiFiScan
 
       struct BLEData
       {
-        NimBLEAdvertisementData AdvData;
-        NimBLEAdvertisementData ScanData;
+        BLEAdvertisementData AdvData;
+        BLEAdvertisementData ScanData;
       };
 
       struct WatchModel
@@ -564,7 +564,7 @@ class WiFiScan
       WatchModel* watch_models = nullptr;
 
       static void scanCompleteCB(BLEScanResults scanResults);
-      NimBLEAdvertisementData GetUniversalAdvertisementData(EBLEPayloadType type);
+      BLEAdvertisementData GetUniversalAdvertisementData(EBLEPayloadType type);
     #endif
 
     void displayTransmitRate();

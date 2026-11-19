@@ -39,7 +39,7 @@
 
   #define JSON_SETTING_SIZE 2048
 
-  #define MARAUDER_VERSION "v1.11.8"
+  #define MARAUDER_VERSION "v1.12.0"
 
   #define GRAPH_REFRESH   100
 
@@ -457,7 +457,7 @@
     //#define HAS_BUTTONS
     #define HAS_NEOPIXEL_LED
     //#define HAS_PWR_MGMT
-    #define HAS_SCREEN
+    //#define HAS_SCREEN
     //#define HAS_GPS
     //#define HAS_C5_SD
     //#define HAS_SD

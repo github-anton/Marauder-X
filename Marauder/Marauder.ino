@@ -78,7 +78,7 @@ Settings *settings = NULL;
 CommandLine *cli_obj = NULL;
 
 #ifdef HAS_BT
-  NimBLEScan* pBLEScan ;
+  BLEScan* pBLEScan ;
 #endif
 
 #ifdef HAS_ZIGBEE
@@ -253,7 +253,7 @@ void setup()
   // will see exact line.
   
   #ifdef HAS_BT
-    pBLEScan = new NimBLEScan ;
+    pBLEScan = NULL ;
   #endif
 
   #ifdef HAS_ZIGBEE
